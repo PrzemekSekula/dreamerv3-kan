@@ -3,6 +3,8 @@ import functools
 import os
 import pathlib
 import sys
+import gymnasium
+import gymnasium_robotics
 
 os.environ["MUJOCO_GL"] = "osmesa"
 
@@ -145,6 +147,7 @@ def make_dataset(episodes, config):
 
 def make_env(config, mode, id):
     suite, task = config.task.split("_", 1)
+    print(f"Suite: {suite}, task: {task}")
     if suite == "dmc":
         import envs.dmc as dmc
 
@@ -193,6 +196,11 @@ def make_env(config, mode, id):
 
         env = minecraft.make_env(task, size=config.size, break_speed=config.break_speed)
         env = wrappers.OneHotAction(env)
+    elif suite == "gymrobotics":
+        gymnasium.register_envs(gymnasium_robotics)
+        env = gymnasium.make(task, render_mode=None)
+        print(type(env))
+        print("Done")
     else:
         raise NotImplementedError(suite)
     env = wrappers.TimeLimit(env, config.time_limit)
@@ -340,13 +348,13 @@ def main(config):
 
 
 if __name__ == "__main__":
-    
-    #temporary
-    #sys.argv.extend([
+
+    # temporary
+    # sys.argv.extend([
     #    "--configs", "atari100k",
     #    "--task", "atari_pong",
     #    "--logdir", "./logdir/atari"
-    #])
+    # ])
     parser = argparse.ArgumentParser()
     parser.add_argument("--configs", nargs="+")
     args, remaining = parser.parse_known_args()
