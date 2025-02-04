@@ -12,7 +12,16 @@ class TimeLimit(gym.Wrapper):
 
     def step(self, action):
         assert self._step is not None, "Must reset environment."
-        obs, reward, done, info = self.env.step(action)
+        # UPDATE
+        # Handle both formats (for Gymnasium and other article envs)
+        result = self.env.step(action)
+        if len(result) == 5:  # Gymnasium (Fetch, Robotics, etc.)
+            obs, reward, done, truncated, info = result
+            done = done or truncated  # Merge 'done' and 'truncated'
+        elif len(result) == 4:  # Other environments
+            obs, reward, done, info = result
+        else:
+            raise ValueError(f"Unexpected step() return format: {result}")
         self._step += 1
         if self._step >= self._duration:
             done = True
@@ -47,8 +56,8 @@ class NormalizeActions(gym.Wrapper):
 class OneHotAction(gym.Wrapper):
     def __init__(self, env):
         assert isinstance(env.action_space, gym.spaces.Discrete)
-        #super().__init__(env)
-        super().__init__(env._env) #internal import
+        # super().__init__(env)
+        super().__init__(env._env)  # internal import
         self.myenv = env
         self._random = np.random.RandomState()
         shape = (self.env.action_space.n,)
@@ -73,17 +82,20 @@ class OneHotAction(gym.Wrapper):
         reference = np.zeros(actions, dtype=np.float32)
         reference[index] = 1.0
         return reference
+
     @property
-    def observation_space(self):        
+    def observation_space(self):
         return self.myenv.observation_space
-    
-    def _obs(self, reward, is_first=False, is_last=False, is_terminal=False):    
+
+    def _obs(self, reward, is_first=False, is_last=False, is_terminal=False):
         return self.myenv._obs(reward, is_first, is_last, is_terminal)
+
     def _screen(self, array):
-        return self.myenv._screen(array)    
-    
+        return self.myenv._screen(array)
+
     def close(self):
-        return self.myenv.close()    
+        return self.myenv.close()
+
 
 class RewardObs(gym.Wrapper):
     def __init__(self, env):

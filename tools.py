@@ -154,15 +154,24 @@ def simulate(
             results = [envs[i].reset() for i in indices]
             results = [r() for r in results]
             for index, result in zip(indices, results):
-                t = result.copy()
+                # UPDATE
+                if isinstance(result, tuple) and isinstance(result[0], dict):
+                    # Gymnasium-robotics case: Extract the observation dict
+                    t = result[0].copy()
+                    # replace obs with done by initial state
+                    obs[index] = result[0]
+                else:
+                    # Other environments (assumed to work normally)
+                    t = result.copy()
+                    # replace obs with done by initial state
+                    obs[index] = result
                 t = {k: convert(v) for k, v in t.items()}
                 # action will be added to transition in add_to_cache
                 t["reward"] = 0.0
                 t["discount"] = 1.0
                 # initial state should be added to cache
                 add_to_cache(cache, envs[index].id, t)
-                # replace obs with done by initial state
-                obs[index] = result
+
         # step agents
         obs = {k: np.stack([o[k] for o in obs]) for k in obs[0] if "log_" not in k}
         action, agent_state = agent(obs, done, agent_state)
