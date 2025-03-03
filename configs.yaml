@@ -177,17 +177,23 @@ memorymaze:
   task: 'memorymaze_9x9'
 
 gymnasium_robotics:
+  size: [64, 64]
+  time_limit: 1000
+  steps: 5e5
+  envs: 1
+  train_ratio: 512
+  video_pred_log: false
   seed: 42                        # Ziarno losowości
-  num_envs: 4                     # Liczba środowisk w wektorze
   max_steps: 1000                 # Maksymalna liczba kroków na epizod
   reward_scale: 1.0               # Skala nagród
-  render_mode: null               # Wyłączone renderowanie (możesz zmienić na 'human' dla wizualizacji)
+  render_mode: 'rgb_array'               # Wyłączone renderowanie (możesz zmienić na 'human' dla wizualizacji)
   action_repeat: 1                # Liczba powtórzeń akcji
   observation_space: proprioceptive  # Typ przestrzeni obserwacji (możesz zmienić na pełną)
   action_space: continuous        # Typ przestrzeni akcji (zazwyczaj "continuous" w Gymnasium Robotics)
   reset_on_done: true             # Automatyczny reset po zakończeniu epizodu
   encoder: {mlp_keys: '.*', cnn_keys: '$^'}
   decoder: {mlp_keys: '.*', cnn_keys: '$^'}
+  reward_EMA: True
 
 debug:
   debug: True

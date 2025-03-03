@@ -171,6 +171,7 @@ def make_env(config, mode, id):
             seed=config.seed + id,
         )
         env = wrappers.OneHotAction(env)
+        print(type(env))
     elif suite == "dmlab":
         import envs.dmlab as dmlab
 
@@ -197,9 +198,13 @@ def make_env(config, mode, id):
         env = minecraft.make_env(task, size=config.size, break_speed=config.break_speed)
         env = wrappers.OneHotAction(env)
     elif suite == "gymrobotics":
-        gymnasium.register_envs(gymnasium_robotics)
-        env = gymnasium.make(task, render_mode=None)
-        print(type(env))
+        import envs.gym_robotics as gym_robotics
+
+        # gymnasium.register_envs(gymnasium_robotics)
+        # env = gymnasium.make(task, render_mode=None)
+        env = gym_robotics.Robotics(
+            task, size=config.size, render_mode=config.render_mode
+        )
         print("Done")
     else:
         raise NotImplementedError(suite)

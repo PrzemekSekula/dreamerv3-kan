@@ -1,6 +1,9 @@
 import gymnasium as gym
 import numpy as np
 import gymnasium_robotics
+import os
+
+os.environ["MUJOCO_GL"] = "egl"
 
 
 class Robotics(gym.Env):
@@ -12,6 +15,7 @@ class Robotics(gym.Env):
         name="FetchReach-v2",
         action_repeat=1,
         size=(100, 100),
+        render_mode="rgb_array",
         seed=None,
     ):
         super().__init__()
@@ -25,10 +29,13 @@ class Robotics(gym.Env):
         self._repeat = action_repeat
         self._size = size
         self._random = np.random.RandomState(seed)
+        self._render_mode = render_mode
+
+        gym.register_envs(gymnasium_robotics)
 
         with self.LOCK:
             try:
-                self._env = gym.make(name, render_mode="human")
+                self._env = gym.make(name, render_mode=self._render_mode)
             except gym.error.Error as e:
                 raise ValueError(f"Error creating environment {name}: {e}")
 
@@ -54,21 +61,34 @@ class Robotics(gym.Env):
         obs = {
             key: [val] if len(np.shape(val)) == 0 else val for key, val in obs.items()
         }
-        obs["image"] = self.render()
+
         obs["is_terminal"] = done
         obs["is_first"] = self._step == 0
         info["discount"] = np.array(1.0 if not done else 0.0, np.float32)
+        obs["image"] = self.render()
         self._step += 1
         return obs, reward, done, info
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        obs, info = self._env.reset()
+        obs, info = self._env.reset(seed=seed, options=options)
+
         self._done = False
         self._step = 0
+
+        obs = dict(obs)
+        obs = {
+            key: [val] if len(np.shape(val)) == 0 else val for key, val in obs.items()
+        }
+        obs["image"] = self.render()
+        obs["is_terminal"] = False  # Reset state is never terminal
+        obs["is_first"] = True  # First step of episode
+
+        info["discount"] = np.array(1.0, np.float32)  # Discount factor at start
+
         return obs, info
 
-    def render(self, mode="rgb_array"):
+    def render(self):
         return self._env.render()
 
     def close(self):
