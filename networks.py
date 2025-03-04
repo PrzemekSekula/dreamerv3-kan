@@ -9,6 +9,8 @@ from torch import distributions as torchd
 
 import tools
 
+from efficient_kan import KAN
+
 
 class RSSM(nn.Module):
     def __init__(
@@ -352,9 +354,104 @@ class MultiEncoder(nn.Module):
             outputs.append(self._cnn(inputs))
         if self.mlp_shapes:
             inputs = torch.cat([obs[k] for k in self.mlp_shapes], -1)
-            outputs.append(self._mlp(inputs))
+            outputs.append(self._mlp(inputs)) 
         outputs = torch.cat(outputs, -1)
+        print(f"MultiEncoder Final output shape: {outputs.shape}") #MultiEncoder Final output shape: torch.Size([4, 1024])
         return outputs
+
+class MultiEncoderKAN(nn.Module):
+    def __init__(
+        self,
+        shapes,
+        mlp_keys,
+        cnn_keys,
+        act,
+        norm,
+        cnn_depth,
+        kernel_size,
+        minres,  
+        layers_hidden,  
+        grid_size,
+        spline_order,
+        scale_noise,
+        scale_base,
+        scale_spline,
+        base_activation,
+        grid_eps,
+        grid_range,
+        symlog_inputs,
+    ):
+        super(MultiEncoderKAN, self).__init__()
+        excluded = ("is_first", "is_last", "is_terminal", "reward")
+        shapes = {
+            k: v
+            for k, v in shapes.items()
+            if k not in excluded and not k.startswith("log_")
+        }
+        self.cnn_shapes = {
+            k: v for k, v in shapes.items() if len(v) == 3 and re.match(cnn_keys, k)
+        }
+        self.mlp_shapes = {
+            k: v
+            for k, v in shapes.items()
+            if len(v) in (1, 2) and re.match(mlp_keys, k)
+        }
+        print("Encoder CNN shapes:", self.cnn_shapes)
+        print("Encoder MLP shapes:", self.mlp_shapes)
+
+        self.outdim = 0
+        if self.cnn_shapes:
+            input_ch = sum([v[-1] for v in self.cnn_shapes.values()])
+            input_shape = tuple(self.cnn_shapes.values())[0][:2] + (input_ch,)
+            self._cnn = ConvEncoder(
+                input_shape, cnn_depth, act, norm, kernel_size, minres
+            )
+            self.outdim += self._cnn.outdim
+        if self.mlp_shapes:
+            input_size = sum([sum(v) for v in self.mlp_shapes.values()])
+            self._mlp = KAN( #here insert KAN instead of MLP
+                layers_hidden=[input_size, 1024],  # Construct layers dynamically
+                grid_size=8,  # Adjust for optimal function representation
+                spline_order=3,  # Keep cubic splines #CONFIG ^
+                # scale_noise=0.05,  # Reduce noise for stability
+                # scale_base=1.0,
+                # scale_spline=1.0,
+                # base_activation=torch.nn.SiLU,  # Same as DreamerV3
+                # grid_eps=0.01,  # Smaller grid adjustment step
+                # grid_range=[-1, 1],  # Keep same range,
+            )
+            self.outdim += 1024
+
+    def forward(self, obs):
+        outputs = []
+        
+        # Process CNN input if available
+        if self.cnn_shapes:
+            inputs = torch.cat([obs[k] for k in self.cnn_shapes], -1)
+            outputs.append(self._cnn(inputs))
+
+        # Process MLP/KAN input if available
+        if self.mlp_shapes:
+            inputs = torch.cat([obs[k] for k in self.mlp_shapes], -1)
+            mlp_out = self._mlp(inputs)  # ✅ Pass through KAN
+            #print ('DEBUG (mlp_out):', mlp_out.shape)
+            # ✅ Ensure correct output format
+            if isinstance(mlp_out, dict):  
+                mlp_out = {k: v.mode()[0] if hasattr(v, "mode") else v for k, v in mlp_out.items()}
+                mlp_out = torch.cat(list(mlp_out.values()), -1)
+            # elif isinstance(mlp_out, torch.return_types.mode):  
+            #     mlp_out = mlp_out[0]  # ✅ Extract tensor from named tuple
+            # else:
+            #     mlp_out = mlp_out.mode()[0] if hasattr(mlp_out, "mode") else mlp_out
+
+            #print(f"    mlp_out.shape after processing: {mlp_out.shape}")
+            outputs.append(mlp_out)
+
+        outputs = torch.cat(outputs, -1)  # ✅ Now `outputs` contains only tensors
+        #print(f"Final encoder output shape: {outputs.shape}") #Final encoder output shape: torch.Size([4])
+        return outputs
+
+
 
 
 class MultiDecoder(nn.Module):
