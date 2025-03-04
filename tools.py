@@ -149,6 +149,7 @@ def simulate(
         step, episode, done, length, obs, agent_state, reward = state
     while (steps and step < steps) or (episodes and episode < episodes):
         # reset envs if necessary
+        #print (f'Evaluating step {step:,} episode {episode}    \r', end='\r')
         if done.any():
             indices = [index for index, d in enumerate(done) if d]
             results = [envs[i].reset() for i in indices]

@@ -222,23 +222,45 @@ class ImagBehavior(nn.Module):
             feat_size = config.dyn_stoch * config.dyn_discrete + config.dyn_deter
         else:
             feat_size = config.dyn_stoch + config.dyn_deter
-        self.actor = networks.MLP(
-            feat_size,
-            (config.num_actions,),
-            config.actor["layers"],
-            config.units,
-            config.act,
-            config.norm,
-            config.actor["dist"],
-            config.actor["std"],
-            config.actor["min_std"],
-            config.actor["max_std"],
-            absmax=1.0,
-            temp=config.actor["temp"],
-            unimix_ratio=config.actor["unimix_ratio"],
-            outscale=config.actor["outscale"],
-            name="Actor",
-        )
+
+        if config.actor['model'] == 'kan':
+            self.actor = networks.MLP_KAN(
+                inp_dim = feat_size,
+                shape=(config.num_actions,),
+                width=config.actor["width"],
+                grid=config.actor["grid"],
+                k=config.actor["k"],
+                act=config.act,
+                norm=config.norm,
+                dist=config.actor["dist"],
+                std=config.actor["std"],
+                min_std=config.actor["min_std"],
+                max_std=config.actor["max_std"],
+                absmax=1.0,
+                temp=config.actor["temp"],
+                unimix_ratio=config.actor["unimix_ratio"],
+                outscale=config.actor["outscale"],
+                name="Actor",
+            )
+        else:
+            self.actor = networks.MLP(
+                feat_size,
+                (config.num_actions,),
+                config.actor["layers"],
+                config.units,
+                config.act,
+                config.norm,
+                config.actor["dist"],
+                config.actor["std"],
+                config.actor["min_std"],
+                config.actor["max_std"],
+                absmax=1.0,
+                temp=config.actor["temp"],
+                unimix_ratio=config.actor["unimix_ratio"],
+                outscale=config.actor["outscale"],
+                name="Actor",
+            )
+
         self.value = networks.MLP(
             feat_size,
             (255,) if config.critic["dist"] == "symlog_disc" else (),
