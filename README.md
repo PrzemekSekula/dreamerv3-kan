@@ -52,3 +52,6 @@ This code is heavily inspired by the following works:
 - jsikyoon's Dreamer-v2 pytorch implementation: https://github.com/jsikyoon/dreamer-torch
 - RajGhugare19's Dreamer-v2 pytorch implementation: https://github.com/RajGhugare19/dreamerv2
 - denisyarats's DrQ-v2 original implementation: https://github.com/facebookresearch/drqv2
+
+# Adding efficient-kan as submodule
+git submodule add https://github.com/Blealtan/efficient-kan.git efficient-kan
