@@ -349,6 +349,7 @@ def main(config):
         try:
             env.close()
         except Exception:
+            print(f"[ERROR]: Cannot close the environment. {Exception}")
             pass
 
 

@@ -54,7 +54,9 @@ class Robotics(gym.Env):
         reward = 0.0
         for _ in range(self._repeat):
             obs, step_reward, done, truncated, info = self._env.step(action)
-            reward += step_reward or 0.0
+            reward += (
+                step_reward or 0.0
+            )  # 1) Why `or 0`. 2) Should it not be an average?
             if done:
                 break
         obs = dict(obs)
@@ -64,7 +66,9 @@ class Robotics(gym.Env):
 
         obs["is_terminal"] = done
         obs["is_first"] = self._step == 0
-        info["discount"] = np.array(1.0 if not done else 0.0, np.float32)
+        info["discount"] = np.array(
+            1.0 if not done else 0.0, np.float32
+        )  # Why 0 when done
         obs["image"] = self.render()
         self._step += 1
         return obs, reward, done, info
