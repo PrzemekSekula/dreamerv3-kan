@@ -565,7 +565,7 @@ class MultiDecoderKAN(nn.Module):
 
         self.mlp_shapes = {k: v for k, v in shapes.items() if len(v) in (1, 2) and re.match(mlp_keys, k)}
 
-        print("  Decoder MLP shapes:", self.mlp_shapes)
+        #print("  Decoder MLP shapes:", self.mlp_shapes)
 
         # Dynamically determine the correct output size based on `mlp_shapes`
         total_output_size = sum(shape[-1] for shape in self.mlp_shapes.values())  # e.g., 8 + 9 = 17
@@ -573,7 +573,7 @@ class MultiDecoderKAN(nn.Module):
         # Add this output size to `layers_hidden` dynamically
         adjusted_layers_hidden = layers_hidden + [total_output_size]  # Ensure last layer matches expected size
 
-        print(f"✅ [KAN Decoder] Adjusted layers_hidden: {adjusted_layers_hidden}")
+        #print(f"[KAN Decoder] Adjusted layers_hidden: {adjusted_layers_hidden}")
 
         # Initialize KAN with dynamically adjusted layers
         self._mlp = KAN(
@@ -589,7 +589,7 @@ class MultiDecoderKAN(nn.Module):
         )
 
     def forward(self, features):
-        print(f"  [KAN Decoder] Features input shape: {features.shape}")
+        #print(f"  [KAN Decoder] Features input shape: {features.shape}")
 
         dists = {}
 
