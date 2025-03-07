@@ -35,7 +35,8 @@ class WorldModel(nn.Module):
         shapes = {k: tuple(v.shape) for k, v in obs_space.spaces.items()}
         #self.encoder = networks.MultiEncoderKAN(shapes, **config.encoder)
         encoder_config = {k: v for k, v in config.encoder.items() if k not in ["mlp_layers", "mlp_units"]}  # Remove MLP-specific keys
-        if config.model == "kan":
+        decoder_config = {k: v for k, v in config.decoder.items() if k not in ["mlp_layers", "mlp_units"]}
+        if config.model == "kan" or config.model == "kan_full":
             self.encoder = networks.MultiEncoderKAN(shapes, **encoder_config)
         else:
             self.encoder = networks.MultiEncoder(shapes, **config.encoder)
@@ -62,9 +63,14 @@ class WorldModel(nn.Module):
             feat_size = config.dyn_stoch * config.dyn_discrete + config.dyn_deter
         else:
             feat_size = config.dyn_stoch + config.dyn_deter
-        self.heads["decoder"] = networks.MultiDecoder(
-            feat_size, shapes, **config.decoder
-        )
+        # Select correct decoder based on the config
+        if config.model == "kan_full":
+           # print(f"Decoder config: {decoder_config}")
+
+            self.heads["decoder"] = networks.MultiDecoderKAN(feat_size, shapes, **decoder_config)
+        else:
+            self.heads["decoder"] = networks.MultiDecoder(feat_size, shapes, **config.decoder)
+
         self.heads["reward"] = networks.MLP(
             feat_size,
             (255,) if config.reward_head["dist"] == "symlog_disc" else (),
@@ -140,11 +146,32 @@ class WorldModel(nn.Module):
                         preds.update(pred)
                     else:
                         preds[name] = pred
-                losses = {}
-                for name, pred in preds.items():
+            losses = {}
+            for name, pred in preds.items():
+
+                # print(f"Debug: Processing '{name}' - pred type: {type(pred)}")  # Ensure pred is checked
+                # print(f"pred.shape: {pred.shape if isinstance(pred, torch.Tensor) else 'N/A'}")
+                # print(f"data[{name}].shape: {data[name].shape}")
+
+                if hasattr(pred, "log_prob"):
                     loss = -pred.log_prob(data[name])
-                    assert loss.shape == embed.shape[:2], (name, loss.shape)
-                    losses[name] = loss
+                else:
+                    pred_value = pred.mode() if hasattr(pred, "mode") else pred  # Extract tensor
+
+                    # If pred_value is a tuple, take the first element
+                    if isinstance(pred_value, tuple):
+                        pred_value = pred_value[0]
+
+                    # Ensure pred_value is a tensor without breaking autograd
+                    if not isinstance(pred_value, torch.Tensor):
+                        pred_value = torch.as_tensor(pred_value, dtype=torch.float32, device=data[name].device)
+
+                    # Now, pred_value is guaranteed to be a valid Tensor
+                    loss = torch.nn.functional.mse_loss(pred_value, data[name])
+
+                assert loss.shape == embed.shape[:2], (name, loss.shape)
+                losses[name] = loss
+
                 scaled = {
                     key: value * self._scales.get(key, 1.0)
                     for key, value in losses.items()

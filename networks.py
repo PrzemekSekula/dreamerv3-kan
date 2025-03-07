@@ -356,7 +356,7 @@ class MultiEncoder(nn.Module):
             inputs = torch.cat([obs[k] for k in self.mlp_shapes], -1)
             outputs.append(self._mlp(inputs)) 
         outputs = torch.cat(outputs, -1)
-        print(f"MultiEncoder Final output shape: {outputs.shape}") #MultiEncoder Final output shape: torch.Size([4, 1024])
+        #print(f"MultiEncoder Final output shape: {outputs.shape}") #MultiEncoder Final output shape: torch.Size([4, 1024])
         return outputs
 
 class MultiEncoderKAN(nn.Module):
@@ -517,6 +517,7 @@ class MultiDecoder(nn.Module):
 
     def forward(self, features):
         dists = {}
+     #   print(f"[MLP Decoder] Features input shape: {features.shape}")
         if self.cnn_shapes:
             feat = features
             outputs = self._cnn(feat)
@@ -541,6 +542,69 @@ class MultiDecoder(nn.Module):
             return tools.MSEDist(mean)
         raise NotImplementedError(self._image_dist)
 
+class MultiDecoderKAN(nn.Module):
+    def __init__(
+        self,
+        feat_size,
+        shapes,
+        mlp_keys,
+        cnn_keys,
+        layers_hidden,
+        grid_size,
+        spline_order,
+        scale_noise,
+        scale_base,
+        scale_spline,
+        base_activation,
+        grid_eps,
+        grid_range,
+        #image_dist="mse",
+        **kwargs,
+    ):
+        super(MultiDecoderKAN, self).__init__()
+        excluded = ("is_first", "is_last", "is_terminal")
+        shapes = {k: v for k, v in shapes.items() if k not in excluded}
+        self.cnn_shapes = {k: v for k, v in shapes.items() if len(v) == 3 and re.match(cnn_keys, k)}
+        self.mlp_shapes = {k: v for k, v in shapes.items() if len(v) in (1, 2) and re.match(mlp_keys, k)}
+
+        print("Decoder CNN shapes:", self.cnn_shapes)
+        print("Decoder MLP shapes:", self.mlp_shapes)
+
+        if self.mlp_shapes:
+            self._mlp = KAN(
+                layers_hidden=[feat_size] + layers_hidden,
+                grid_size=grid_size,
+                spline_order=spline_order,
+                scale_noise=scale_noise,
+                scale_base=scale_base,
+                scale_spline=scale_spline,
+                base_activation=getattr(torch.nn, base_activation),
+                grid_eps=grid_eps,
+                grid_range=grid_range,
+            )
+
+        #self._image_dist = image_dist  # Keep image distribution consistent
+
+    def forward(self, features):
+            print(f"[KAN Decoder] Features input shape: {features.shape}")
+
+            dists = {}
+            for name, shape in self.mlp_shapes.items():
+                out = self._mlp(features)  #  KAN decoder output
+
+                # Debug print before reshaping
+                print(f"[KAN Decoder] Raw output shape for '{name}': {out.shape}, Expected: {shape}")
+
+                # Ensure correct shape by adjusting feature size to match MLP output
+                expected_size = shape[-1]  # Get the correct output size (e.g., 8)
+                if out.shape[-1] != expected_size:
+                    print(f"[KAN Decoder] Reshaping {name} output from {out.shape} to expected {expected_size}")
+                    out = out[..., :expected_size]  # Trim excess dimensions
+
+                # Convert to `SymlogDist` after correcting shape
+                dists[name] = tools.SymlogDist(out)
+
+            return dists
 
 class ConvEncoder(nn.Module):
     def __init__(

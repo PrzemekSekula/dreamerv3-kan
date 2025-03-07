@@ -95,6 +95,7 @@ defaults:
   disag_action_cond: False
 
 dmc_proprio:
+  model: "mlp"
   steps: 5e5
   action_repeat: 2
   envs: 4
@@ -118,7 +119,36 @@ dmc_proprio_kan:
     cnn_depth: 32
     kernel_size: 4
     minres: 4
-    layers_hidden: [512, 1024]
+    layers_hidden: [512, 1024] #musi być 1024, np. 256 zamiast 512, możliwe dodanie drugiej warstwy (64, 256)
+    grid_size: 5 
+    spline_order: 3 #nieparzyste
+    scale_noise: 0.05
+    scale_base: 1.0
+    scale_spline: 1.0
+    base_activation: "SiLU"
+    grid_eps: 0.01
+    grid_range: [-1, 1]
+    symlog_inputs: True
+  decoder:  # Ensure MLP Decoder is used instead of CNN
+    mlp_keys: ".*"
+    cnn_keys: "$^"
+
+dmc_proprio_kan_full: # full KAN (both encoder and decoder)
+  model: "kan_full"  
+  steps: 5e5
+  action_repeat: 2
+  envs: 4
+  train_ratio: 512
+  video_pred_log: false
+  encoder:
+    mlp_keys: ".*"
+    cnn_keys: "$^"
+    act: "SiLU"
+    norm: True
+    cnn_depth: 32
+    kernel_size: 4
+    minres: 4
+    layers_hidden: [512, 1024] 
     grid_size: 8
     spline_order: 3
     scale_noise: 0.05
@@ -128,6 +158,19 @@ dmc_proprio_kan:
     grid_eps: 0.01
     grid_range: [-1, 1]
     symlog_inputs: True
+  decoder:
+    mlp_keys: ".*"
+    cnn_keys: "$^"
+    layers_hidden: [1024, 512]
+    grid_size: 5
+    spline_order: 3
+    scale_noise: 0.05
+    scale_base: 1.0
+    scale_spline: 1.0
+    base_activation: "SiLU"
+    grid_eps: 0.01
+    grid_range: [-1, 1]
+    outscale: 1.0
 
 dmc_vision:
   steps: 1e6
