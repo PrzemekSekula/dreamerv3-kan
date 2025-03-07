@@ -548,8 +548,7 @@ class MultiDecoderKAN(nn.Module):
         feat_size,
         shapes,
         mlp_keys,
-        cnn_keys,
-        layers_hidden,
+        layers_hidden,  # Still used, but dynamically adjusted now!
         grid_size,
         spline_order,
         scale_noise,
@@ -558,53 +557,62 @@ class MultiDecoderKAN(nn.Module):
         base_activation,
         grid_eps,
         grid_range,
-        #image_dist="mse",
         **kwargs,
     ):
         super(MultiDecoderKAN, self).__init__()
         excluded = ("is_first", "is_last", "is_terminal")
         shapes = {k: v for k, v in shapes.items() if k not in excluded}
-        self.cnn_shapes = {k: v for k, v in shapes.items() if len(v) == 3 and re.match(cnn_keys, k)}
+
         self.mlp_shapes = {k: v for k, v in shapes.items() if len(v) in (1, 2) and re.match(mlp_keys, k)}
 
-        print("Decoder CNN shapes:", self.cnn_shapes)
-        print("Decoder MLP shapes:", self.mlp_shapes)
+        print("  Decoder MLP shapes:", self.mlp_shapes)
 
-        if self.mlp_shapes:
-            self._mlp = KAN(
-                layers_hidden=[feat_size] + layers_hidden,
-                grid_size=grid_size,
-                spline_order=spline_order,
-                scale_noise=scale_noise,
-                scale_base=scale_base,
-                scale_spline=scale_spline,
-                base_activation=getattr(torch.nn, base_activation),
-                grid_eps=grid_eps,
-                grid_range=grid_range,
-            )
+        # Dynamically determine the correct output size based on `mlp_shapes`
+        total_output_size = sum(shape[-1] for shape in self.mlp_shapes.values())  # e.g., 8 + 9 = 17
 
-        #self._image_dist = image_dist  # Keep image distribution consistent
+        # Add this output size to `layers_hidden` dynamically
+        adjusted_layers_hidden = layers_hidden + [total_output_size]  # Ensure last layer matches expected size
+
+        print(f"✅ [KAN Decoder] Adjusted layers_hidden: {adjusted_layers_hidden}")
+
+        # Initialize KAN with dynamically adjusted layers
+        self._mlp = KAN(
+            layers_hidden=[feat_size] + adjusted_layers_hidden,  #   Auto-adjusted last layer
+            grid_size=grid_size,
+            spline_order=spline_order,
+            scale_noise=scale_noise,
+            scale_base=scale_base,
+            scale_spline=scale_spline,
+            base_activation=getattr(torch.nn, base_activation),
+            grid_eps=grid_eps,
+            grid_range=grid_range,
+        )
 
     def forward(self, features):
-            print(f"[KAN Decoder] Features input shape: {features.shape}")
+        print(f"  [KAN Decoder] Features input shape: {features.shape}")
 
-            dists = {}
+        dists = {}
+
+        if self.mlp_shapes:
+            mlp_out = self._mlp(features)  # KAN decoder output
+
+            #  Debug print before reshaping
+            #print(f"  [KAN Decoder] Raw output shape: {mlp_out.shape}")
+
+            # Ensure it matches `mlp_shapes` dynamically
+            start_idx = 0
             for name, shape in self.mlp_shapes.items():
-                out = self._mlp(features)  #  KAN decoder output
+                expected_size = shape[-1]  # e.g., 8 or 9
 
-                # Debug print before reshaping
-                print(f"[KAN Decoder] Raw output shape for '{name}': {out.shape}, Expected: {shape}")
+                out = mlp_out[..., start_idx : start_idx + expected_size]  #   Slice dynamically
+                start_idx += expected_size
 
-                # Ensure correct shape by adjusting feature size to match MLP output
-                expected_size = shape[-1]  # Get the correct output size (e.g., 8)
-                if out.shape[-1] != expected_size:
-                    print(f"[KAN Decoder] Reshaping {name} output from {out.shape} to expected {expected_size}")
-                    out = out[..., :expected_size]  # Trim excess dimensions
+                #print(f"[KAN Decoder] Output '{name}' matches expected {shape}!")
 
-                # Convert to `SymlogDist` after correcting shape
                 dists[name] = tools.SymlogDist(out)
 
-            return dists
+        return dists
+
 
 class ConvEncoder(nn.Module):
     def __init__(
