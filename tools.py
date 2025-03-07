@@ -543,7 +543,7 @@ class SymlogDist:
         return symexp(self._mode)
 
     def log_prob(self, value):
-        print(f"[SymlogDist] self._mode.shape: {self._mode.shape}, value.shape: {value.shape}")  # Debug print
+        #print(f"[SymlogDist] self._mode.shape: {self._mode.shape}, value.shape: {value.shape}")  # Debug print
         # for MLP (working): Debug: Processing 'position' - pred type: <class 'tools.SymlogDist'>
         # pred.shape: N/A
         # data[position].shape: torch.Size([16, 64, 8])
