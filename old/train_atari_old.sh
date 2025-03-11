@@ -3,7 +3,7 @@
 ############################################
 # Default parameters
 ############################################
-LOG_FOLDER_DEFAULT="original/seed_3"
+LOG_FOLDER_DEFAULT="original/seed_0"
 GPU_COUNT_DEFAULT=9
 
 ############################################
@@ -37,46 +37,77 @@ echo "Using GPU_COUNT='${GPU_COUNT}'"
 # List of tasks (Atari environments)
 ############################################
 TASKS=(
-  up_n_down
-  crazy_climber
-  battle_zone
-  breakout
-  private_eye
-  bank_heist
-  kung_fu_master
-  freeway
-  pong
-  hero
-  boxing
-  gopher
-  krull
-  chopper_command
-  demon_attack
-  seaquest
-  road_runner
-  assault
-  frostbite
-  amidar
-  jamesbond
-  ms_pacman
-  qbert
+  ##adventure
+  ##air_raid
   alien
-  kangaroo
+  amidar
+  assault
   asterix
+  #asteroids
+  #atlantis
+  bank_heist
+  battle_zone
+  #beam_rider
+  #berzerk
+  #bowling
+  boxing
+  breakout
+  ##carnival
+  #centipede
+  chopper_command
+  crazy_climber
+  #defender
+  demon_attack
+  #double_dunk
+  ##elevator_action
+  #enduro
+  #fishing_derby
+  freeway
+  frostbite
+  gopher
+  #gravitar
+  hero
+  #ice_hockey
+  jamesbond
+  ##journey_escape
+  kangaroo
+  krull
+  kung_fu_master
+  #montezuma_revenge
+  ms_pacman
+  #name_this_game
+  #phoenix
+  #pitfall
+  pong
+  ##pooyan
+  private_eye
+  qbert
+  #riverraid
+  road_runner
+  #robotank
+  seaquest
+  #skiing
+  #solaris
+  #space_invaders
+  #star_gunner
+  #surround
+  #tennis
+  #time_pilot
+  #tutankham
+  up_n_down
+  #venture
+  #video_pinball
+  #wizard_of_wor
+  #yars_revenge
+  #zaxxon
 )
 
 ############################################
-# We want 2 tasks per GPU in parallel
-# => total slots = 2 * GPU_COUNT
+# Initialize array to track PIDs per GPU
 ############################################
-SLOTS_COUNT=$((GPU_COUNT * 3))
-
-# Initialize an array of length SLOTS_COUNT
-# Each element holds the PID of the process occupying that slot.
-# If the value is 0, that slot is free.
-declare -a SLOT_PIDS
-for ((slot=0; slot<SLOTS_COUNT; slot++)); do
-  SLOT_PIDS[$slot]=0
+declare -a GPU_PIDS
+for ((gpu=0; gpu<GPU_COUNT; gpu++)); do
+  GPU_PIDS[$gpu]=0
 done
 
 ############################################
@@ -84,13 +115,9 @@ done
 ############################################
 start_training() {
   local task=$1
-  local slot_id=$2
+  local gpu_id=$2
 
-  # The actual GPU to use is floor(slot_id / 2)
-  # because each GPU has 2 slots: (0,1) -> gpu 0, (2,3) -> gpu 1, etc.
-  local gpu_id=$((slot_id / 2))
-
-  echo "Starting atari_${task} on cuda:${gpu_id} (slot ${slot_id})"
+  echo "Starting atari_${task} on cuda:${gpu_id}"
   python3 dreamer.py \
     --configs atari100k \
     --task atari_"${task}" \
@@ -98,7 +125,7 @@ start_training() {
     --device cuda:"${gpu_id}" &
 
   # Store the PID of the newly launched process
-  SLOT_PIDS[$slot_id]=$!
+  GPU_PIDS[$gpu_id]=$!
 }
 
 ############################################
@@ -106,24 +133,25 @@ start_training() {
 ############################################
 for task in "${TASKS[@]}"; do
   while true; do
-    # Check each slot in [0..SLOTS_COUNT-1]
-    for ((slot=0; slot<SLOTS_COUNT; slot++)); do
-      # If SLOT_PIDS[slot] == 0, that slot is free
-      if [ "${SLOT_PIDS[$slot]}" -eq 0 ]; then
-        start_training "$task" "$slot"
-        # Break out of the slot loop, go to next task
+    # Check each GPU to see if its PID is still running
+    for ((gpu=0; gpu<GPU_COUNT; gpu++)); do
+      
+      # If GPU_PIDS[gpu] == 0, it means no process is running there
+      if [ "${GPU_PIDS[$gpu]}" -eq 0 ]; then
+        # GPU is free, start training here
+        start_training "$task" "$gpu"
         break 2
       fi
 
-      # Else, check if the process in that slot is still alive
-      if ! kill -0 "${SLOT_PIDS[$slot]}" 2>/dev/null; then
-        # The process ended, so the slot is now free
-        start_training "$task" "$slot"
+      # If GPU_PIDS[gpu] != 0, check if that PID is still alive
+      if ! kill -0 "${GPU_PIDS[$gpu]}" 2>/dev/null; then
+        # Process on this GPU is finished, so the GPU is free
+        start_training "$task" "$gpu"
         break 2
       fi
     done
 
-    # If we did NOT break, it means no slot was free => wait a bit and check again
+    # If we did not break, it means all GPUs are busy, so wait a bit and check again
     sleep 2
   done
 done

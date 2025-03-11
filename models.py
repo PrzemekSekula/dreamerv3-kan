@@ -224,7 +224,7 @@ class ImagBehavior(nn.Module):
             feat_size = config.dyn_stoch + config.dyn_deter
 
         if config.actor['model'] == 'kan':
-            self.actor = networks.MLP_KAN(
+            self.actor = networks.Sparse_kan(
                 inp_dim = feat_size,
                 shape=(config.num_actions,),
                 width=config.actor["width"],
@@ -240,8 +240,10 @@ class ImagBehavior(nn.Module):
                 temp=config.actor["temp"],
                 unimix_ratio=config.actor["unimix_ratio"],
                 outscale=config.actor["outscale"],
+                device=config.device,
                 name="Actor",
             )
+            print ('Actor Network:\n',self.actor)
         else:
             self.actor = networks.MLP(
                 feat_size,
@@ -258,21 +260,39 @@ class ImagBehavior(nn.Module):
                 temp=config.actor["temp"],
                 unimix_ratio=config.actor["unimix_ratio"],
                 outscale=config.actor["outscale"],
+                device=config.device,
                 name="Actor",
             )
 
-        self.value = networks.MLP(
-            feat_size,
-            (255,) if config.critic["dist"] == "symlog_disc" else (),
-            config.critic["layers"],
-            config.units,
-            config.act,
-            config.norm,
-            config.critic["dist"],
-            outscale=config.critic["outscale"],
-            device=config.device,
-            name="Value",
-        )
+        if config.critic['model'] == 'kan':
+            self.value = networks.MLP_KAN(
+                inp_dim = feat_size,
+                shape=(255,) if config.critic["dist"] == "symlog_disc" else (),
+                width=config.critic["width"],
+                grid=config.critic["grid"],
+                k=config.critic["k"],
+                act=config.act,
+                norm=config.norm,
+                dist=config.critic["dist"],
+                outscale=config.critic["outscale"],
+                device=config.device,
+                name="Value",
+            )
+        else:
+            self.value = networks.MLP(
+                inp_dim = feat_size,
+                shape=(255,) if config.critic["dist"] == "symlog_disc" else (),
+                layers=config.critic["layers"],
+                units=config.units,
+                act=config.act,
+                norm=config.norm,
+                dist=config.critic["dist"],
+                outscale=config.critic["outscale"],
+                device=config.device,
+                name="Value",
+            )
+        
+        
         if config.critic["slow_target"]:
             self._slow_value = copy.deepcopy(self.value)
             self._updates = 0

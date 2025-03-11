@@ -825,7 +825,7 @@ class ImgChLayerNorm(nn.Module):
         return x
 
 
-class MLP_KAN(KAN):
+class Sparse_kan(nn.Module):
     def __init__(
         self,
         inp_dim,
@@ -847,15 +847,12 @@ class MLP_KAN(KAN):
         device="cuda",
         name="NoName",
     ):
-           
-        seed = 0
-        units = width[-1]
-
-        print (f'Creating KAN with input shape {inp_dim}, '
-               f'layers {width}, grid size {grid}, and spline order {k}')
-
-        super().__init__(
-            [inp_dim] + width, 
+        super(Sparse_kan, self).__init__()
+        
+        self.first_layer = nn.Linear(inp_dim, width[0])
+        self.first_act = torch.nn.SiLU()
+        self.kan = KAN(
+            width,
             grid_size=grid,
             spline_order=k,
             scale_noise=0.1,
@@ -863,8 +860,14 @@ class MLP_KAN(KAN):
             scale_spline=1.0,
             base_activation=torch.nn.SiLU,
             grid_eps=0.02,
-            grid_range=[-1, 1],            
-            )
+            grid_range=[-1, 1], 
+        )
+        seed = 0
+        units = width[-1]
+
+        print (f'Creating Sparse Kan with input shape {inp_dim}, '
+               f'layers {width}, grid size {grid}, and spline order {k}')
+
         
         inp_dim = width[-1]
         self._name = name
@@ -906,7 +909,10 @@ class MLP_KAN(KAN):
         if self._symlog_inputs:
             x = tools.symlog(x)
 
-        out = super().forward(x)
+        x = self.first_layer(x)
+        x = self.first_act(x)
+        out = self.kan(x)
+
         # Used for encoder output
         if self._shape is None:
             return out
