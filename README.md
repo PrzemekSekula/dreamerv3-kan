@@ -1,6 +1,17 @@
 # dreamerv3-torch
 Pytorch implementation of [Mastering Diverse Domains through World Models](https://arxiv.org/abs/2301.04104v1). DreamerV3 is a scalable algorithm that outperforms previous approaches across various domains with fixed hyperparameters.
 
+## Laser dreamer
+
+This dreamer has a nev env - laser (by default enabled in dreamer.py)
+the env is based on Crafter
+In addition:
+laser_mockup.py - a mockup of the device generating sech^2-like pulse (ACF from laser), with image as output
+gym_server_mockup3.py - mockup of the gym server, with a discrete action space of 120 values
+
+Warning: this works, but something is fishy ;/
+
+
 ## Instructions
 
 ### Method 1: Manual

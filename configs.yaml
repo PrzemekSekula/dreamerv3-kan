@@ -69,7 +69,7 @@ defaults:
   model_lr: 1e-4
   opt_eps: 1e-8
   grad_clip: 1000
-  dataset_size: 1000000
+  dataset_size: 10000
   opt: 'adam'
 
   # Behavior.
@@ -128,6 +128,29 @@ crafter:
   reward_head: {layers: 5}
   cont_head: {layers: 5}
   imag_gradient: 'reinforce'
+  
+
+laser:
+  task: laser_reward
+  step: 100 #1e6
+  steps: 100 #1e6
+  action_repeat: 1
+  envs: 1
+  train_ratio: 512
+  video_pred_log: true
+  dyn_hidden: 1024
+  dyn_deter: 4096
+  units: 1024
+  encoder: {mlp_keys: '$^', cnn_keys: 'image', cnn_depth: 96, mlp_layers: 5, mlp_units: 1024}
+  decoder: {mlp_keys: '$^', cnn_keys: 'image', cnn_depth: 96, mlp_layers: 5, mlp_units: 1024}
+  actor: {layers: 5, dist: 'onehot', std: 'none'}
+  value: {layers: 5}
+  reward_head: {layers: 5}
+  cont_head: {layers: 5}
+  imag_gradient: 'reinforce'
+  prefill: 500
+  time_limit: 50
+
 
 atari100k:
   steps: 4e5

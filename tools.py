@@ -278,7 +278,7 @@ def erase_over_episodes(cache, dataset_size):
 
 
 def convert(value, precision=32):
-    value = np.array(value)
+    value = np.asarray(value)
     if np.issubdtype(value.dtype, np.floating):
         dtype = {16: np.float16, 32: np.float32, 64: np.float64}[precision]
     elif np.issubdtype(value.dtype, np.signedinteger):
@@ -288,6 +288,7 @@ def convert(value, precision=32):
     elif np.issubdtype(value.dtype, bool):
         dtype = bool
     else:
+        #print (f"Value: {value}")
         raise NotImplementedError(value.dtype)
     return value.astype(dtype)
 

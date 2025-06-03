@@ -188,6 +188,12 @@ def make_env(config, mode, id):
 
         env = crafter.Crafter(task, config.size, seed=config.seed + id)
         env = wrappers.OneHotAction(env)
+    elif suite == "laser":
+        import envs.laser as laser
+
+        env = laser.Laser(task, config.size, seed=config.seed + id)
+        env = wrappers.OneHotAction(env)
+
     elif suite == "minecraft":
         import envs.minecraft as minecraft
 
@@ -214,7 +220,6 @@ def main(config):
     config.eval_every //= config.action_repeat
     config.log_every //= config.action_repeat
     config.time_limit //= config.action_repeat
-
     print("Logdir", logdir)
     logdir.mkdir(parents=True, exist_ok=True)
     config.traindir.mkdir(parents=True, exist_ok=True)
@@ -342,11 +347,11 @@ def main(config):
 if __name__ == "__main__":
     
     #temporary
-    #sys.argv.extend([
-    #    "--configs", "atari100k",
-    #    "--task", "atari_pong",
-    #    "--logdir", "./logdir/atari"
-    #])
+    sys.argv.extend([
+        "--configs", "laser",
+        "--task", "laser_task",
+        "--logdir", "./logdir/laser"
+    ])
     parser = argparse.ArgumentParser()
     parser.add_argument("--configs", nargs="+")
     args, remaining = parser.parse_known_args()
