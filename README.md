@@ -8,6 +8,7 @@ the env is based on Crafter
 In addition:
 laser_mockup.py - a mockup of the device generating sech^2-like pulse (ACF from laser), with image as output
 gym_server_mockup3.py - mockup of the gym server, with a discrete action space of 120 values
+laser_moclup_differential.py - working GA solution
 
 Warning: this works, but something is fishy ;/
 
