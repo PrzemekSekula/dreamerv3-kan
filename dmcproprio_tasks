@@ -1,0 +1,19 @@
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_acrobot_swingup --logdir ./logdir/dmc_acrobot_swingup
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_cartpole_balance --logdir ./logdir/dmc_cartpole_balance
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_cartpole_balance_sparse --logdir ./logdir/dmc_cartpole_balance_sparse
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_cartpole_swingup --logdir ./logdir/dmc_cartpole_swingup
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_cartpole_swingup_sparse --logdir ./logdir/dmc_cartpole_swingup_sparse
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_cheetah_run --logdir ./logdir/dmc_cheetah_run
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_ball_in_cup_catch --logdir ./logdir/dmc_ball_in_cup_catch
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_finger_spin --logdir ./logdir/dmc_finger_spin
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_finger_turn_easy --logdir ./logdir/dmc_finger_turn_easy
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_finger_turn_hard --logdir ./logdir/dmc_finger_turn_hard
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_hopper_hop --logdir ./logdir/dmc_hopper_hop
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_hopper_stand --logdir ./logdir/dmc_hopper_stand
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_pendulum_swingup --logdir ./logdir/dmc_pendulum_swingup
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_reacher_easy --logdir ./logdir/dmc_reacher_easy
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_reacher_hard --logdir ./logdir/dmc_reacher_hard
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_walker_run --logdir ./logdir/dmc_walker_run
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_walker_stand --logdir ./logdir/dmc_walker_stand
+python3 dreamer.py --configs dmc_proprio_kan --task dmc_walker_walk --logdir ./logdir/dmc_walker_walk
+
