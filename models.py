@@ -265,7 +265,7 @@ class ImagBehavior(nn.Module):
             )
 
         if config.critic['model'] == 'kan':
-            self.value = networks.MLP_KAN(
+            self.value = networks.Sparse_kan(
                 inp_dim = feat_size,
                 shape=(255,) if config.critic["dist"] == "symlog_disc" else (),
                 width=config.critic["width"],

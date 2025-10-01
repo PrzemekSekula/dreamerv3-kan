@@ -152,7 +152,8 @@ atari100k_kan:
   train_ratio: 1024
   video_pred_log: true
   eval_episode_num: 100
-  actor: {model: 'kan', width: [128, ], grid: 5, k: 3, dist: 'onehot', std: 'none'}
+  actor: {model: 'kan', width: [128, 64, 32], grid: 8, k: 3, dist: 'onehot', std: 'none'}
+  critic: {model: 'kan', width: [128, 64, 32], grid: 8, k: 3}
   imag_gradient: 'reinforce'
   stickey: False
   lives: unused
