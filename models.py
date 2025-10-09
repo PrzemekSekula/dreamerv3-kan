@@ -222,35 +222,77 @@ class ImagBehavior(nn.Module):
             feat_size = config.dyn_stoch * config.dyn_discrete + config.dyn_deter
         else:
             feat_size = config.dyn_stoch + config.dyn_deter
-        self.actor = networks.MLP(
-            feat_size,
-            (config.num_actions,),
-            config.actor["layers"],
-            config.units,
-            config.act,
-            config.norm,
-            config.actor["dist"],
-            config.actor["std"],
-            config.actor["min_std"],
-            config.actor["max_std"],
-            absmax=1.0,
-            temp=config.actor["temp"],
-            unimix_ratio=config.actor["unimix_ratio"],
-            outscale=config.actor["outscale"],
-            name="Actor",
-        )
-        self.value = networks.MLP(
-            feat_size,
-            (255,) if config.critic["dist"] == "symlog_disc" else (),
-            config.critic["layers"],
-            config.units,
-            config.act,
-            config.norm,
-            config.critic["dist"],
-            outscale=config.critic["outscale"],
-            device=config.device,
-            name="Value",
-        )
+
+        if config.actor['model'] == 'kan':
+            self.actor = networks.Sparse_kan(
+                inp_dim = feat_size,
+                shape=(config.num_actions,),
+                width=config.actor["width"],
+                grid=config.actor["grid"],
+                k=config.actor["k"],
+                act=config.act,
+                norm=config.norm,
+                dist=config.actor["dist"],
+                std=config.actor["std"],
+                min_std=config.actor["min_std"],
+                max_std=config.actor["max_std"],
+                absmax=1.0,
+                temp=config.actor["temp"],
+                unimix_ratio=config.actor["unimix_ratio"],
+                outscale=config.actor["outscale"],
+                device=config.device,
+                name="Actor",
+            )
+            print ('Actor Network:\n',self.actor)
+        else:
+            self.actor = networks.MLP(
+                feat_size,
+                (config.num_actions,),
+                config.actor["layers"],
+                config.units,
+                config.act,
+                config.norm,
+                config.actor["dist"],
+                config.actor["std"],
+                config.actor["min_std"],
+                config.actor["max_std"],
+                absmax=1.0,
+                temp=config.actor["temp"],
+                unimix_ratio=config.actor["unimix_ratio"],
+                outscale=config.actor["outscale"],
+                device=config.device,
+                name="Actor",
+            )
+
+        if config.critic['model'] == 'kan':
+            self.value = networks.Sparse_kan(
+                inp_dim = feat_size,
+                shape=(255,) if config.critic["dist"] == "symlog_disc" else (),
+                width=config.critic["width"],
+                grid=config.critic["grid"],
+                k=config.critic["k"],
+                act=config.act,
+                norm=config.norm,
+                dist=config.critic["dist"],
+                outscale=config.critic["outscale"],
+                device=config.device,
+                name="Value",
+            )
+        else:
+            self.value = networks.MLP(
+                inp_dim = feat_size,
+                shape=(255,) if config.critic["dist"] == "symlog_disc" else (),
+                layers=config.critic["layers"],
+                units=config.units,
+                act=config.act,
+                norm=config.norm,
+                dist=config.critic["dist"],
+                outscale=config.critic["outscale"],
+                device=config.device,
+                name="Value",
+            )
+        
+        
         if config.critic["slow_target"]:
             self._slow_value = copy.deepcopy(self.value)
             self._updates = 0

@@ -1,16 +1,20 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 ############################################
 # Default parameters
 ############################################
-LOG_FOLDER_DEFAULT="original/seed_3"
-GPU_COUNT_DEFAULT=9
+LOG_FOLDER_DEFAULT="kan_ac"
+GPU_START_DEFAULT=4
+GPU_COUNT_DEFAULT=3
+RUNS_PER_GPU_DEFAULT=2
 
 ############################################
 # Parse command-line arguments
 ############################################
 LOG_FOLDER="$LOG_FOLDER_DEFAULT"
+GPU_START="$GPU_START_DEFAULT"
 GPU_COUNT="$GPU_COUNT_DEFAULT"
+RUNS_PER_GPU="$RUNS_PER_GPU_DEFAULT"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -22,9 +26,17 @@ while [[ "$#" -gt 0 ]]; do
       GPU_COUNT="$2"
       shift 2
       ;;
+    --runs_per_gpu)
+      RUNS_PER_GPU="$2"
+      shift 2
+      ;;
+    --gpustart)
+      GPU_START="$2"
+      shift 2
+      ;;
     *)
       echo "Unrecognized parameter: $1"
-      echo "Usage: $0 [--logfolder FOLDER] [--gpucount N]"
+      echo "Usage: $0 [--logfolder FOLDER] [--gpucount N] [--runs_per_gpu M] [--gpustart S]"
       exit 1
       ;;
   esac
@@ -32,44 +44,25 @@ done
 
 echo "Using LOG_FOLDER='${LOG_FOLDER}'"
 echo "Using GPU_COUNT='${GPU_COUNT}'"
+echo "Using RUNS_PER_GPU='${RUNS_PER_GPU}'"
+echo "Using GPU_START='${GPU_START}'"
 
 ############################################
 # List of tasks (Atari environments)
 ############################################
 TASKS=(
-  up_n_down
-  crazy_climber
-  battle_zone
-  breakout
-  private_eye
-  bank_heist
-  kung_fu_master
-  freeway
-  pong
-  hero
-  boxing
-  gopher
-  krull
-  chopper_command
-  demon_attack
-  seaquest
-  road_runner
-  assault
-  frostbite
-  amidar
-  jamesbond
   ms_pacman
   qbert
   alien
   kangaroo
   asterix
+  pong
 )
 
 ############################################
-# We want 2 tasks per GPU in parallel
-# => total slots = 2 * GPU_COUNT
+# We want runs_per_gpu tasks per GPU
 ############################################
-SLOTS_COUNT=$((GPU_COUNT * 3))
+SLOTS_COUNT=$((GPU_COUNT * RUNS_PER_GPU))
 
 # Initialize an array of length SLOTS_COUNT
 # Each element holds the PID of the process occupying that slot.
@@ -86,15 +79,14 @@ start_training() {
   local task=$1
   local slot_id=$2
 
-  # The actual GPU to use is floor(slot_id / 2)
-  # because each GPU has 2 slots: (0,1) -> gpu 0, (2,3) -> gpu 1, etc.
-  local gpu_id=$((slot_id / 2))
+  # GPU to use = GPU_START + floor(slot_id / RUNS_PER_GPU)
+  local gpu_id=$((GPU_START + slot_id / RUNS_PER_GPU))
 
   echo "Starting atari_${task} on cuda:${gpu_id} (slot ${slot_id})"
   python3 dreamer.py \
-    --configs atari100k \
+    --configs atari100k_kan \
     --task atari_"${task}" \
-    --logdir ./log_atari100k/"${LOG_FOLDER}"/"${task}" \
+    --logdir ./log/"${LOG_FOLDER}"/"${task}" \
     --device cuda:"${gpu_id}" &
 
   # Store the PID of the newly launched process
@@ -115,15 +107,15 @@ for task in "${TASKS[@]}"; do
         break 2
       fi
 
-      # Else, check if the process in that slot is still alive
+      # If the slot is not free, check if the process is still alive
       if ! kill -0 "${SLOT_PIDS[$slot]}" 2>/dev/null; then
-        # The process ended, so the slot is now free
+        # Process ended, so the slot is now free
         start_training "$task" "$slot"
         break 2
       fi
     done
 
-    # If we did NOT break, it means no slot was free => wait a bit and check again
+    # If we did NOT break, it means no slot is free => wait a bit, then check again
     sleep 2
   done
 done

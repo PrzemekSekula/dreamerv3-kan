@@ -3,9 +3,10 @@
 ############################################
 # Default parameters
 ############################################
-LOG_FOLDER_DEFAULT="original/seed_3"
-GPU_COUNT_DEFAULT=9
-RUNS_PER_GPU_DEFAULT=3
+LOG_FOLDER_DEFAULT="kan"
+GPU_START_DEFAULT=4
+GPU_COUNT_DEFAULT=3
+RUNS_PER_GPU_DEFAULT=2
 
 ############################################
 # Parse command-line arguments
@@ -13,6 +14,7 @@ RUNS_PER_GPU_DEFAULT=3
 LOG_FOLDER="$LOG_FOLDER_DEFAULT"
 GPU_COUNT="$GPU_COUNT_DEFAULT"
 RUNS_PER_GPU="$RUNS_PER_GPU_DEFAULT"
+GPU_START="$GPU_START_DEFAULT"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -28,9 +30,13 @@ while [[ "$#" -gt 0 ]]; do
       RUNS_PER_GPU="$2"
       shift 2
       ;;
+    --gpustart)
+      GPU_START="$2"
+      shift 2
+      ;;
     *)
       echo "Unrecognized parameter: $1"
-      echo "Usage: $0 [--logfolder FOLDER] [--gpucount N] [--runs_per_gpu M]"
+      echo "Usage: $0 [--logfolder FOLDER] [--gpucount N] [--runs_per_gpu M] [--gpustart S]"
       exit 1
       ;;
   esac
@@ -39,37 +45,18 @@ done
 echo "Using LOG_FOLDER='${LOG_FOLDER}'"
 echo "Using GPU_COUNT='${GPU_COUNT}'"
 echo "Using RUNS_PER_GPU='${RUNS_PER_GPU}'"
+echo "Using GPU_START='${GPU_START}'"
 
 ############################################
 # List of tasks (Atari environments)
 ############################################
 TASKS=(
-  up_n_down
-  crazy_climber
-  battle_zone
-  breakout
-  private_eye
-  bank_heist
-  kung_fu_master
-  freeway
-  pong
-  hero
-  boxing
-  gopher
-  krull
-  chopper_command
-  demon_attack
-  seaquest
-  road_runner
-  assault
-  frostbite
-  amidar
-  jamesbond
   ms_pacman
   qbert
   alien
   kangaroo
   asterix
+  pong
 )
 
 ############################################
@@ -92,8 +79,8 @@ start_training() {
   local task=$1
   local slot_id=$2
 
-  # GPU to use is floor(slot_id / runs_per_gpu)
-  local gpu_id=$((slot_id / RUNS_PER_GPU))
+  # GPU to use = GPU_START + floor(slot_id / RUNS_PER_GPU)
+  local gpu_id=$((GPU_START + slot_id / RUNS_PER_GPU))
 
   echo "Starting atari_${task} on cuda:${gpu_id} (slot ${slot_id})"
   python3 dreamer.py \
