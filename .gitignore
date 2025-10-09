@@ -139,3 +139,4 @@ dmypy.json
 
 # Project specific
 log*
+log_atari100k/*
