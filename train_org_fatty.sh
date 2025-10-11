@@ -6,7 +6,7 @@
 LOG_FOLDER_DEFAULT="kan_org"
 # Define a default list of GPU IDs to use
 GPU_LIST_DEFAULT=(1 2 3 5 6)
-RUNS_PER_GPU_DEFAULT=2
+RUNS_PER_GPU_DEFAULT=3
 
 ############################################
 # Parse command-line arguments
