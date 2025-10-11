@@ -61,6 +61,7 @@ TASKS=(
 # Get the number of GPUs from the length of the GPU_LIST array
 GPU_COUNT=${#GPU_LIST[@]}
 SLOTS_COUNT=$((GPU_COUNT * RUNS_PER_GPU))
+echo "Total number of slots (SLOTS_COUNT): $SLOTS_COUNT"
 
 # Initialize an array of length SLOTS_COUNT
 # Each element holds the PID of the process occupying that slot.

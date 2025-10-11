@@ -243,7 +243,7 @@ class ImagBehavior(nn.Module):
                 device=config.device,
                 name="Actor",
             )
-            print ('Actor Network:\n',self.actor)
+            # print ('Actor Network:\n',self.actor)
         else:
             self.actor = networks.MLP(
                 feat_size,
