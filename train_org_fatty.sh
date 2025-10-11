@@ -47,12 +47,32 @@ echo "Using GPU_LIST='${GPU_LIST[@]}'"
 # List of tasks (Atari environments)
 ############################################
 TASKS=(
+  up_n_down
+  crazy_climber
+  battle_zone
+  breakout
+  private_eye
+  bank_heist
+  kung_fu_master
+  freeway
+  pong
+  hero
+  boxing
+  gopher
+  krull
+  chopper_command
+  demon_attack
+  seaquest
+  road_runner
+  assault
+  frostbite
+  amidar
+  jamesbond
   ms_pacman
   qbert
   alien
   kangaroo
   asterix
-  pong
 )
 
 ############################################
@@ -90,6 +110,7 @@ start_training() {
     --configs atari100k \
     --task atari_"${task}" \
     --logdir ./log_atari100k/"${LOG_FOLDER}"/"${task}" \
+    --checkpointdir ./checkpoints/"${LOG_FOLDER}"/"${task}" \
     --device cuda:"${gpu_id}" &
 
   # Store the PID of the newly launched process
