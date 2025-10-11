@@ -220,7 +220,7 @@ def main(config):
     config.log_every //= config.action_repeat
     config.time_limit //= config.action_repeat
 
-    print("Logdir", logdir)
+    print(f"({config.task}) Logdir: {logdir}")
     logdir.mkdir(parents=True, exist_ok=True)
     config.traindir.mkdir(parents=True, exist_ok=True)
     config.evaldir.mkdir(parents=True, exist_ok=True)
@@ -228,7 +228,7 @@ def main(config):
     # step in logger is environmental step
     logger = tools.Logger(logdir, config.action_repeat * step)
 
-    print("Create envs.")
+    print(f"({config.task}) Create envs.")
     if config.offline_traindir:
         directory = config.offline_traindir.format(**vars(config))
     else:
@@ -249,13 +249,13 @@ def main(config):
         train_envs = [Damy(env) for env in train_envs]
         eval_envs = [Damy(env) for env in eval_envs]
     acts = train_envs[0].action_space
-    print("Action Space", acts)
+    print(f"({config.task}) Action Space: {acts}")
     config.num_actions = acts.n if hasattr(acts, "n") else acts.shape[0]
 
     state = None
     if not config.offline_traindir:
         prefill = max(0, config.prefill - count_steps(config.traindir))
-        print(f"Prefill dataset ({prefill} steps).")
+        print(f"({config.task}) Prefill dataset ({prefill} steps).")
         if hasattr(acts, "discrete"):
             random_actor = tools.OneHotDist(
                 torch.zeros(config.num_actions).repeat(config.envs, 1)
@@ -284,9 +284,9 @@ def main(config):
             steps=prefill,
         )
         logger.step += prefill * config.action_repeat
-        print(f"Logger: ({logger.step} steps).")
+        print(f"({config.task}) Logger: ({logger.step} steps).")
 
-    print("Simulate agent.")
+    print(f"({config.task}) Simulate agent.")
     train_dataset = make_dataset(train_eps, config)
     eval_dataset = make_dataset(eval_eps, config)
     agent = Dreamer(
@@ -308,7 +308,7 @@ def main(config):
     while agent._step < config.steps + config.eval_every:
         logger.write()
         if config.eval_episode_num > 0:
-            print("Start evaluation.")
+            print(f"({config.task}) Start evaluation.")
             eval_policy = functools.partial(agent, training=False)
             tools.simulate(
                 eval_policy,
@@ -322,7 +322,7 @@ def main(config):
             if config.video_pred_log:
                 video_pred = agent._wm.video_pred(next(eval_dataset))
                 logger.video("eval_openl", to_np(video_pred))
-        print("Start training.")
+        print(f"({config.task}) Start training.")
         state = tools.simulate(
             agent,
             train_envs,
