@@ -140,4 +140,4 @@ dmypy.json
 # Project specific
 log*
 efficient_kan/*
-
+checkpoint*

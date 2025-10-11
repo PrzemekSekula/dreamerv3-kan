@@ -208,6 +208,11 @@ def main(config):
     if config.deterministic_run:
         tools.enable_deterministic_run()
     logdir = pathlib.Path(config.logdir).expanduser()
+    if config.checkpointdir is None:
+        checkpointdir = None
+    else:
+        checkpointdir = pathlib.Path(config.checkpointdir).expanduser()
+        
     config.traindir = config.traindir or logdir / "train_eps"
     config.evaldir = config.evaldir or logdir / "eval_eps"
     config.steps //= config.action_repeat
@@ -292,11 +297,12 @@ def main(config):
         train_dataset,
     ).to(config.device)
     agent.requires_grad_(requires_grad=False)
-    if (logdir / "latest.pt").exists():
-        checkpoint = torch.load(logdir / "latest.pt")
-        agent.load_state_dict(checkpoint["agent_state_dict"])
-        tools.recursively_load_optim_state_dict(agent, checkpoint["optims_state_dict"])
-        agent._should_pretrain._once = False
+    if config.checkpointdir is not None:
+        if (checkpointdir / "latest.pt").exists():
+            checkpoint = torch.load(logdir / "latest.pt")
+            agent.load_state_dict(checkpoint["agent_state_dict"])
+            tools.recursively_load_optim_state_dict(agent, checkpoint["optims_state_dict"])
+            agent._should_pretrain._once = False
 
     # make sure eval will be executed once after config.steps
     while agent._step < config.steps + config.eval_every:
@@ -327,11 +333,17 @@ def main(config):
             steps=config.eval_every,
             state=state,
         )
-        items_to_save = {
-            "agent_state_dict": agent.state_dict(),
-            "optims_state_dict": tools.recursively_collect_optim_state_dict(agent),
-        }
-        torch.save(items_to_save, logdir / "latest.pt")
+
+        if  config.checkpointdir is not None:
+            items_to_save = {
+                "agent_state_dict": agent.state_dict(),
+                "optims_state_dict": tools.recursively_collect_optim_state_dict(agent),
+            }
+            torch.save(items_to_save, checkpointdir / "latest.pt")
+            if config.save_all_checkpoints:
+                torch.save(items_to_save, checkpointdir / f"checkpoint_{logger.step}.pt")
+
+
     for env in train_envs + eval_envs:
         try:
             env.close()

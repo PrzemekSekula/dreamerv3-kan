@@ -1,6 +1,6 @@
 defaults:
-
   logdir: null
+  checkpointdir: null
   traindir: null
   evaldir: null
   offline_traindir: ''
@@ -12,6 +12,7 @@ defaults:
   eval_every: 1e4
   eval_episode_num: 10
   log_every: 1e4
+  log_all_checkpoints: False
   reset_every: 0
   device: 'cuda:0'
   compile: True
@@ -169,7 +170,7 @@ minecraft:
   envs: 16
   # no eval
   eval_episode_num: 0
-  eval_every: 1e4
+  eval_every: 1e4 
   action_repeat: 1
   train_ratio: 16
   video_pred_log: true
