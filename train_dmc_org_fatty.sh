@@ -3,10 +3,10 @@
 ############################################
 # Default parameters
 ############################################
-LOG_FOLDER_DEFAULT="kan_ac"
+LOG_FOLDER_DEFAULT="dmc_org"
 # Define a default list of GPU IDs to use
 GPU_LIST_DEFAULT=(1 2 3 5 6)
-RUNS_PER_GPU_DEFAULT=3
+RUNS_PER_GPU_DEFAULT=4
 
 ############################################
 # Parse command-line arguments
@@ -47,32 +47,24 @@ echo "Using GPU_LIST='${GPU_LIST[@]}'"
 # List of tasks (Atari environments)
 ############################################
 TASKS=(
-  up_n_down
-  crazy_climber
-  battle_zone
-  breakout
-  private_eye
-  bank_heist
-  kung_fu_master
-  freeway
-  pong
-  hero
-  boxing
-  gopher
-  krull
-  chopper_command
-  demon_attack
-  seaquest
-  road_runner
-  assault
-  frostbite
-  amidar
-  jamesbond
-  ms_pacman
-  qbert
-  alien
-  kangaroo
-  asterix
+  acrobot_swingup
+  cartpole_balance
+  cartpole_balance_sparse
+  cartpole_swingup
+  cartpole_swingup_sparse
+  cheetah_run
+  ball_in_cup_catch
+  finger_spin
+  finger_turn_easy
+  finger_turn_hard
+  hopper_hop 
+  hopper_stand
+  pendulum_swingup
+  reacher_easy
+  reacher_hard
+  walker_run
+  walker_stand
+  walker_walk
 )
 
 ############################################
@@ -81,7 +73,9 @@ TASKS=(
 # Get the number of GPUs from the length of the GPU_LIST array
 GPU_COUNT=${#GPU_LIST[@]}
 SLOTS_COUNT=$((GPU_COUNT * RUNS_PER_GPU))
+
 echo "Total number of slots (SLOTS_COUNT): $SLOTS_COUNT"
+
 
 # Initialize an array of length SLOTS_COUNT
 # Each element holds the PID of the process occupying that slot.
@@ -103,11 +97,11 @@ start_training() {
   # Get the actual GPU ID from the array
   local gpu_id=${GPU_LIST[$gpu_index]}
 
-  echo "Starting atari_${task} on cuda:${gpu_id} (slot ${slot_id})"
+  echo "Starting dmc_${task} on cuda:${gpu_id} (slot ${slot_id})"
   python3 dreamer.py \
-    --configs atari100k_kan \
-    --task atari_"${task}" \
-    --logdir ./log/"${LOG_FOLDER}"/"${task}" \
+    --configs dmc_proprio \
+    --task dmc_"${task}" \
+    --logdir ./log_dmc/"${LOG_FOLDER}"/"${task}" \
     --checkpointdir ./checkpoints/"${LOG_FOLDER}"/"${task}" \
     --device cuda:"${gpu_id}" &
 
