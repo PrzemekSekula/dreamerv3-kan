@@ -212,6 +212,7 @@ def main(config):
         checkpointdir = None
     else:
         checkpointdir = pathlib.Path(config.checkpointdir).expanduser()
+        checkpointdir.mkdir(parents=True, exist_ok=True)
         
     config.traindir = config.traindir or logdir / "train_eps"
     config.evaldir = config.evaldir or logdir / "eval_eps"
