@@ -300,7 +300,7 @@ def main(config):
     agent.requires_grad_(requires_grad=False)
     if config.checkpointdir is not None:
         if (checkpointdir / "latest.pt").exists():
-            checkpoint = torch.load(logdir / "latest.pt")
+            checkpoint = torch.load(checkpointdir / "latest.pt")
             agent.load_state_dict(checkpoint["agent_state_dict"])
             tools.recursively_load_optim_state_dict(agent, checkpoint["optims_state_dict"])
             agent._should_pretrain._once = False

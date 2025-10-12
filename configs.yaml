@@ -3,6 +3,7 @@ defaults:
   checkpointdir: null
   traindir: null
   evaldir: null
+  save_all_checkpoints: False
   offline_traindir: ''
   offline_evaldir: ''
   seed: 0

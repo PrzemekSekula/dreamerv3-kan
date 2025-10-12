@@ -31,6 +31,7 @@ class WorldModel(nn.Module):
         super(WorldModel, self).__init__()
         self._step = step
         self._use_amp = True if config.precision == 16 else False
+        
         self._config = config
         shapes = {k: tuple(v.shape) for k, v in obs_space.spaces.items()}
         self.encoder = networks.MultiEncoder(shapes, **config.encoder)
@@ -113,7 +114,10 @@ class WorldModel(nn.Module):
         data = self.preprocess(data)
 
         with tools.RequiresGrad(self):
-            with torch.amp.autocast('cuda', self._use_amp):
+            dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+            with torch.autocast(
+                device_type='cuda', dtype=dtype, enabled=bool(self._use_amp)):                
+
                 embed = self.encoder(data)
                 post, prior = self.dynamics.observe(
                     embed, data["action"], data["is_first"]
@@ -154,7 +158,9 @@ class WorldModel(nn.Module):
         metrics["dyn_loss"] = to_np(dyn_loss)
         metrics["rep_loss"] = to_np(rep_loss)
         metrics["kl"] = to_np(torch.mean(kl_value))
-        with torch.amp.autocast('cuda', self._use_amp):
+        dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16        
+        with torch.autocast(
+            device_type='cuda', dtype=dtype, enabled=bool(self._use_amp)):                
             metrics["prior_ent"] = to_np(
                 torch.mean(self.dynamics.get_dist(prior).entropy())
             )
@@ -335,7 +341,10 @@ class ImagBehavior(nn.Module):
         metrics = {}
 
         with tools.RequiresGrad(self.actor):
-            with torch.amp.autocast('cuda', self._use_amp):
+            dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+            with torch.autocast(
+                device_type='cuda', dtype=dtype, enabled=bool(self._use_amp)):                
+
                 imag_feat, imag_state, imag_action = self._imagine(
                     start, self.actor, self._config.imag_horizon
                 )
@@ -359,7 +368,10 @@ class ImagBehavior(nn.Module):
                 value_input = imag_feat
 
         with tools.RequiresGrad(self.value):
-            with torch.amp.autocast('cuda', self._use_amp):
+            dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+            with torch.autocast(
+                device_type='cuda', dtype=dtype, enabled=bool(self._use_amp)):                
+                
                 value = self.value(value_input[:-1].detach())
                 target = torch.stack(target, dim=1)
                 # (time, batch, 1), (time, batch, 1) -> (time, batch)
