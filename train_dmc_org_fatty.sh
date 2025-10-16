@@ -5,8 +5,8 @@
 ############################################
 LOG_FOLDER_DEFAULT="dmc_org"
 # Define a default list of GPU IDs to use
-GPU_LIST_DEFAULT=(1 2 3 5 6)
-RUNS_PER_GPU_DEFAULT=4
+GPU_LIST_DEFAULT=(0 1 2 3 4 5 6 7 8 9)
+RUNS_PER_GPU_DEFAULT=2
 
 ############################################
 # Parse command-line arguments
@@ -48,12 +48,12 @@ echo "Using GPU_LIST='${GPU_LIST[@]}'"
 ############################################
 TASKS=(
   acrobot_swingup
+  ball_in_cup_catch
   cartpole_balance
   cartpole_balance_sparse
   cartpole_swingup
   cartpole_swingup_sparse
   cheetah_run
-  ball_in_cup_catch
   finger_spin
   finger_turn_easy
   finger_turn_hard

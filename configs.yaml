@@ -45,9 +45,9 @@ defaults:
   act: 'SiLU'
   norm: True
   encoder:
-    {mlp_keys: '$^', cnn_keys: 'image', act: 'SiLU', norm: True, cnn_depth: 32, kernel_size: 4, minres: 4, mlp_layers: 5, mlp_units: 1024, symlog_inputs: True}
+    {model: 'mlp', mlp_keys: '$^', cnn_keys: 'image', act: 'SiLU', norm: True, cnn_depth: 32, kernel_size: 4, minres: 4, mlp_layers: 5, mlp_units: 1024, symlog_inputs: True}
   decoder:
-    {mlp_keys: '$^', cnn_keys: 'image', act: 'SiLU', norm: True, cnn_depth: 32, kernel_size: 4, minres: 4, mlp_layers: 5, mlp_units: 1024, cnn_sigmoid: False, image_dist: mse, vector_dist: symlog_mse, outscale: 1.0}
+    {model: 'mlp', mlp_keys: '$^', cnn_keys: 'image', act: 'SiLU', norm: True, cnn_depth: 32, kernel_size: 4, minres: 4, mlp_layers: 5, mlp_units: 1024, cnn_sigmoid: False, image_dist: mse, vector_dist: symlog_mse, outscale: 1.0}
   actor:
     {model: 'mlp', width: [], grid: 5, k: 3, layers: 2, dist: 'normal', entropy: 3e-4, unimix_ratio: 0.01, std: 'learned', min_std: 0.1, max_std: 1.0, temp: 0.1, lr: 3e-5, eps: 1e-5, grad_clip: 100.0, outscale: 1.0}
   critic:
@@ -194,6 +194,79 @@ memorymaze:
   actor: {dist: 'onehot', std: 'none'}
   imag_gradient: 'reinforce'
   task: 'memorymaze_9x9'
+
+
+dmc_proprio_kan:
+  steps: 5e5
+  action_repeat: 2
+  envs: 4
+  train_ratio: 512
+  video_pred_log: false
+  encoder:
+    model: "kan"
+    mlp_keys: ".*"
+    cnn_keys: "$^"
+    act: "SiLU"
+    norm: True
+    cnn_depth: 32
+    kernel_size: 4
+    minres: 4
+    layers_hidden: [512, 1024] #musi być 1024, np. 256 zamiast 512, możliwe dodanie drugiej warstwy (64, 256)
+    grid_size: 5 
+    spline_order: 3 #nieparzyste
+    scale_noise: 0.05
+    scale_base: 1.0
+    scale_spline: 1.0
+    base_activation: "SiLU"
+    grid_eps: 0.01
+    grid_range: [-1, 1]
+    symlog_inputs: True
+  decoder:  # Ensure MLP Decoder is used instead of CNN
+    mlp_keys: ".*"
+    cnn_keys: "$^"
+
+dmc_proprio_kan_full: # full KAN (both encoder and decoder)
+  steps: 5e5
+  action_repeat: 2
+  envs: 4
+  train_ratio: 512
+  video_pred_log: false
+  encoder:
+    model: "kan"
+    mlp_keys: ".*"
+    cnn_keys: "$^"
+    act: "SiLU"
+    norm: True
+    cnn_depth: 32
+    kernel_size: 4
+    minres: 4
+    layers_hidden: [512, 1024] 
+    grid_size: 8
+    spline_order: 3
+    scale_noise: 0.05
+    scale_base: 1.0
+    scale_spline: 1.0
+    base_activation: "SiLU"
+    grid_eps: 0.01
+    grid_range: [-1, 1]
+    symlog_inputs: True
+  decoder:
+    model: "kan"
+    mlp_keys: ".*"
+    cnn_keys: "$^"
+    layers_hidden: [1024, 512]
+    grid_size: 5
+    spline_order: 3
+    scale_noise: 0.05
+    scale_base: 1.0
+    scale_spline: 1.0
+    base_activation: "SiLU"
+    grid_eps: 0.01
+    grid_range: [-1, 1]
+    outscale: 1.0
+
+
+
 
 debug:
   debug: True

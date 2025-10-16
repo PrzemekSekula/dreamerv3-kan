@@ -34,7 +34,10 @@ class WorldModel(nn.Module):
         
         self._config = config
         shapes = {k: tuple(v.shape) for k, v in obs_space.spaces.items()}
-        self.encoder = networks.MultiEncoder(shapes, **config.encoder)
+        if config.encoder["model"] == 'kan':
+            self.encoder = networks.MultiEncoderKAN(shapes, **config.encoder)
+        else:
+            self.encoder = networks.MultiEncoder(shapes, **config.encoder)
         self.embed_size = self.encoder.outdim
         self.dynamics = networks.RSSM(
             config.dyn_stoch,
@@ -58,9 +61,13 @@ class WorldModel(nn.Module):
             feat_size = config.dyn_stoch * config.dyn_discrete + config.dyn_deter
         else:
             feat_size = config.dyn_stoch + config.dyn_deter
-        self.heads["decoder"] = networks.MultiDecoder(
-            feat_size, shapes, **config.decoder
-        )
+            
+        if config.decoder["model"] == 'kan':
+            self.decoder = networks.MultiDecoderKAN(shapes, **config.decoder)
+        else:
+            self.decoder = networks.MultiDecoder(shapes, **config.decoder)
+            
+        self.heads["decoder"] = self.decoder
         self.heads["reward"] = networks.MLP(
             feat_size,
             (255,) if config.reward_head["dist"] == "symlog_disc" else (),

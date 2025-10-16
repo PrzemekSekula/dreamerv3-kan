@@ -991,3 +991,167 @@ class Sparse_kan(nn.Module):
         else:
             raise NotImplementedError(dist)
         return dist
+
+# Kan based encoder and decoder by Ania Zawadzka    
+class MultiEncoderKAN(nn.Module):
+    def __init__(
+        self,
+        shapes,
+        mlp_keys,
+        cnn_keys,
+        act,
+        norm,
+        cnn_depth,
+        kernel_size,
+        minres,  
+        layers_hidden,  
+        grid_size,
+        spline_order,
+        scale_noise,
+        scale_base,
+        scale_spline,
+        base_activation,
+        grid_eps,
+        grid_range,
+        symlog_inputs,
+    ):
+        super(MultiEncoderKAN, self).__init__()
+        excluded = ("is_first", "is_last", "is_terminal", "reward")
+        shapes = {
+            k: v
+            for k, v in shapes.items()
+            if k not in excluded and not k.startswith("log_")
+        }
+        self.cnn_shapes = {
+            k: v for k, v in shapes.items() if len(v) == 3 and re.match(cnn_keys, k)
+        }
+        self.mlp_shapes = {
+            k: v
+            for k, v in shapes.items()
+            if len(v) in (1, 2) and re.match(mlp_keys, k)
+        }
+        print("Encoder CNN shapes:", self.cnn_shapes)
+        print("Encoder MLP shapes:", self.mlp_shapes)
+
+        self.outdim = 0
+        if self.cnn_shapes:
+            input_ch = sum([v[-1] for v in self.cnn_shapes.values()])
+            input_shape = tuple(self.cnn_shapes.values())[0][:2] + (input_ch,)
+            self._cnn = ConvEncoder(
+                input_shape, cnn_depth, act, norm, kernel_size, minres
+            )
+            self.outdim += self._cnn.outdim
+        if self.mlp_shapes:
+            input_size = sum([sum(v) for v in self.mlp_shapes.values()])
+            self._mlp = KAN( #here insert KAN instead of MLP
+                layers_hidden=[input_size, 1024],  # Construct layers dynamically
+                grid_size=8,  # Adjust for optimal function representation
+                spline_order=3,  # Keep cubic splines #CONFIG ^
+                # scale_noise=0.05,  # Reduce noise for stability
+                # scale_base=1.0,
+                # scale_spline=1.0,
+                # base_activation=torch.nn.SiLU,  # Same as DreamerV3
+                # grid_eps=0.01,  # Smaller grid adjustment step
+                # grid_range=[-1, 1],  # Keep same range,
+            )
+            self.outdim += 1024
+
+    def forward(self, obs):
+        outputs = []
+        
+        # Process CNN input if available
+        if self.cnn_shapes:
+            inputs = torch.cat([obs[k] for k in self.cnn_shapes], -1)
+            outputs.append(self._cnn(inputs))
+
+        # Process MLP/KAN input if available
+        if self.mlp_shapes:
+            inputs = torch.cat([obs[k] for k in self.mlp_shapes], -1)
+            mlp_out = self._mlp(inputs)  # ✅ Pass through KAN
+            #print ('DEBUG (mlp_out):', mlp_out.shape)
+            # ✅ Ensure correct output format
+            if isinstance(mlp_out, dict):  
+                mlp_out = {k: v.mode()[0] if hasattr(v, "mode") else v for k, v in mlp_out.items()}
+                mlp_out = torch.cat(list(mlp_out.values()), -1)
+            # elif isinstance(mlp_out, torch.return_types.mode):  
+            #     mlp_out = mlp_out[0]  # ✅ Extract tensor from named tuple
+            # else:
+            #     mlp_out = mlp_out.mode()[0] if hasattr(mlp_out, "mode") else mlp_out
+
+            #print(f"    mlp_out.shape after processing: {mlp_out.shape}")
+            outputs.append(mlp_out)
+
+        outputs = torch.cat(outputs, -1)  # ✅ Now `outputs` contains only tensors
+        #print(f"Final encoder output shape: {outputs.shape}") #Final encoder output shape: torch.Size([4])
+        return outputs
+
+class MultiDecoderKAN(nn.Module):
+    def __init__(
+        self,
+        feat_size,
+        shapes,
+        mlp_keys,
+        layers_hidden,  # Still used, but dynamically adjusted now!
+        grid_size,
+        spline_order,
+        scale_noise,
+        scale_base,
+        scale_spline,
+        base_activation,
+        grid_eps,
+        grid_range,
+        **kwargs,
+    ):
+        super(MultiDecoderKAN, self).__init__()
+        excluded = ("is_first", "is_last", "is_terminal")
+        shapes = {k: v for k, v in shapes.items() if k not in excluded}
+
+        self.mlp_shapes = {k: v for k, v in shapes.items() if len(v) in (1, 2) and re.match(mlp_keys, k)}
+
+        #print("  Decoder MLP shapes:", self.mlp_shapes)
+
+        # Dynamically determine the correct output size based on `mlp_shapes`
+        total_output_size = sum(shape[-1] for shape in self.mlp_shapes.values())  # e.g., 8 + 9 = 17
+
+        # Add this output size to `layers_hidden` dynamically
+        adjusted_layers_hidden = layers_hidden + [total_output_size]  # Ensure last layer matches expected size
+
+        #print(f"[KAN Decoder] Adjusted layers_hidden: {adjusted_layers_hidden}")
+
+        # Initialize KAN with dynamically adjusted layers
+        self._mlp = KAN(
+            layers_hidden=[feat_size] + adjusted_layers_hidden,  #   Auto-adjusted last layer
+            grid_size=grid_size,
+            spline_order=spline_order,
+            scale_noise=scale_noise,
+            scale_base=scale_base,
+            scale_spline=scale_spline,
+            base_activation=getattr(torch.nn, base_activation),
+            grid_eps=grid_eps,
+            grid_range=grid_range,
+        )
+
+    def forward(self, features):
+        #print(f"  [KAN Decoder] Features input shape: {features.shape}")
+
+        dists = {}
+
+        if self.mlp_shapes:
+            mlp_out = self._mlp(features)  # KAN decoder output
+
+            #  Debug print before reshaping
+            #print(f"  [KAN Decoder] Raw output shape: {mlp_out.shape}")
+
+            # Ensure it matches `mlp_shapes` dynamically
+            start_idx = 0
+            for name, shape in self.mlp_shapes.items():
+                expected_size = shape[-1]  # e.g., 8 or 9
+
+                out = mlp_out[..., start_idx : start_idx + expected_size]  #   Slice dynamically
+                start_idx += expected_size
+
+                #print(f"[KAN Decoder] Output '{name}' matches expected {shape}!")
+
+                dists[name] = tools.SymlogDist(out)
+
+        return dists
