@@ -63,9 +63,15 @@ class WorldModel(nn.Module):
             feat_size = config.dyn_stoch + config.dyn_deter
             
         if config.decoder["model"] == 'kan':
-            self.decoder = networks.MultiDecoderKAN(shapes, **config.decoder)
+            self.decoder = networks.MultiDecoderKAN(
+                shapes=shapes, 
+                feat_size = feat_size,
+                **config.decoder)
         else:
-            self.decoder = networks.MultiDecoder(shapes, **config.decoder)
+            self.decoder = networks.MultiDecoder(
+                shapes=shapes, 
+                feat_size = feat_size, 
+                **config.decoder)
             
         self.heads["decoder"] = self.decoder
         self.heads["reward"] = networks.MLP(

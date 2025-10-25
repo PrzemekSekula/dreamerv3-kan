@@ -296,6 +296,7 @@ class MultiEncoder(nn.Module):
     def __init__(
         self,
         shapes,
+        model,
         mlp_keys,
         cnn_keys,
         act,
@@ -364,6 +365,7 @@ class MultiDecoder(nn.Module):
         self,
         feat_size,
         shapes,
+        model,
         mlp_keys,
         cnn_keys,
         act,
@@ -997,6 +999,7 @@ class MultiEncoderKAN(nn.Module):
     def __init__(
         self,
         shapes,
+        model,
         mlp_keys,
         cnn_keys,
         act,
@@ -1004,6 +1007,9 @@ class MultiEncoderKAN(nn.Module):
         cnn_depth,
         kernel_size,
         minres,  
+        mlp_layers,
+        mlp_units,
+        symlog_inputs,
         layers_hidden,  
         grid_size,
         spline_order,
@@ -1013,7 +1019,6 @@ class MultiEncoderKAN(nn.Module):
         base_activation,
         grid_eps,
         grid_range,
-        symlog_inputs,
     ):
         super(MultiEncoderKAN, self).__init__()
         excluded = ("is_first", "is_last", "is_terminal", "reward")
@@ -1044,15 +1049,16 @@ class MultiEncoderKAN(nn.Module):
         if self.mlp_shapes:
             input_size = sum([sum(v) for v in self.mlp_shapes.values()])
             self._mlp = KAN( #here insert KAN instead of MLP
-                layers_hidden=[input_size, 1024],  # Construct layers dynamically
-                grid_size=8,  # Adjust for optimal function representation
-                spline_order=3,  # Keep cubic splines #CONFIG ^
-                # scale_noise=0.05,  # Reduce noise for stability
-                # scale_base=1.0,
-                # scale_spline=1.0,
+                layers_hidden=[input_size] + layers_hidden,  # Construct layers dynamically
+                grid_size=grid_size,  # Adjust for optimal function representation
+                spline_order=spline_order,  # Keep cubic splines #CONFIG ^
+                scale_noise=scale_noise,  # Reduce noise for stability
+                scale_base=scale_base,
+                scale_spline=scale_spline,
                 # base_activation=torch.nn.SiLU,  # Same as DreamerV3
-                # grid_eps=0.01,  # Smaller grid adjustment step
+                grid_eps=grid_eps,  # Smaller grid adjustment step
                 # grid_range=[-1, 1],  # Keep same range,
+                # symlog_inputs=symlog_inputs,
             )
             self.outdim += 1024
 

@@ -3,10 +3,11 @@
 ############################################
 # Default parameters
 ############################################
-LOG_FOLDER_DEFAULT="dmc_org"
+CONFIG_ORG="dmc_kan_enc"
+LOG_FOLDER_DEFAULT="$CONFIG_ORG"
 # Define a default list of GPU IDs to use
-GPU_LIST_DEFAULT=(0 1 2 3 4 5 6 7 8 9)
-RUNS_PER_GPU_DEFAULT=2
+GPU_LIST_DEFAULT=(1 2 3 4 5 6 7 8 9)
+RUNS_PER_GPU_DEFAULT=3
 
 ############################################
 # Parse command-line arguments
@@ -15,6 +16,7 @@ LOG_FOLDER="$LOG_FOLDER_DEFAULT"
 # Copy the default array
 GPU_LIST=("${GPU_LIST_DEFAULT[@]}")
 RUNS_PER_GPU="$RUNS_PER_GPU_DEFAULT"
+CONFIG="$CONFIG_ORG"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -31,9 +33,13 @@ while [[ "$#" -gt 0 ]]; do
       GPU_LIST=($(echo "$2" | tr ',' ' '))
       shift 2
       ;;
+    --config)
+      CONFIG="$2"
+      shift 2
+      ;;
     *)
       echo "Unrecognized parameter: $1"
-      echo "Usage: $0 [--logfolder FOLDER] [--runs_per_gpu M] [--gpulist L]"
+      echo "Usage: $0 [--logfolder FOLDER] [--runs_per_gpu M] [--gpulist L] [--config CONFIG_NAME]"
       exit 1
       ;;
   esac
@@ -48,12 +54,12 @@ echo "Using GPU_LIST='${GPU_LIST[@]}'"
 ############################################
 TASKS=(
   acrobot_swingup
-  ball_in_cup_catch
   cartpole_balance
   cartpole_balance_sparse
   cartpole_swingup
   cartpole_swingup_sparse
   cheetah_run
+  ball_in_cup_catch
   finger_spin
   finger_turn_easy
   finger_turn_hard
@@ -98,8 +104,9 @@ start_training() {
   local gpu_id=${GPU_LIST[$gpu_index]}
 
   echo "Starting dmc_${task} on cuda:${gpu_id} (slot ${slot_id})"
+
   python3 dreamer.py \
-    --configs dmc_proprio \
+    --configs "${CONFIG}" \
     --task dmc_"${task}" \
     --logdir ./log_dmc/"${LOG_FOLDER}"/"${task}" \
     --checkpointdir ./checkpoints/"${LOG_FOLDER}"/"${task}" \
