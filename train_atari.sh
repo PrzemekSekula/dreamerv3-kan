@@ -3,7 +3,7 @@
 ############################################
 # Default parameters
 ############################################
-LOG_FOLDER_DEFAULT="original/seed_3"
+LOG_FOLDER_DEFAULT="original/seed_4"
 GPU_COUNT_DEFAULT=9
 RUNS_PER_GPU_DEFAULT=3
 
