@@ -51,7 +51,7 @@ def get_eval_return_from_log_dir(log_dir):
 
 
 # %%
-def extract_eval_return_from_folder(folder_path):
+def extract_eval_return_from_folder(folder_path, verbose=False):
     """
     Extract eval_return metrics from all direct subfolders in the given folder.
     
@@ -74,23 +74,26 @@ def extract_eval_return_from_folder(folder_path):
     # Get all direct subfolders (not recursively)
     subfolders = [f for f in folder_path.iterdir() if f.is_dir()]
     
-    print(f"Found {len(subfolders)} subfolders:")
+    print(f"Found {len(subfolders)} subfolders")
     for subfolder in subfolders:
-        print(f"  - {subfolder.name}")
+        if verbose:
+            print(f"  - {subfolder.name}")
     
     # Process each subfolder
     for subfolder in subfolders:
-        print(f"\nProcessing: {subfolder.name}")
+        if verbose:
+            print(f"\nProcessing: {subfolder.name}")
         eval_return_data = get_eval_return_from_log_dir(str(subfolder))
         
         if eval_return_data:
-            print(f"  Found {len(eval_return_data)} eval_return entries")
+            if verbose:
+                print(f"  Found {len(eval_return_data)} eval_return entries")
             # Add subfolder name to each entry
             for entry in eval_return_data:
                 entry['subfolder_name'] = subfolder.name
                 all_data.append(entry)
         else:
-            print(f"  No eval_return data found")
+            print(f"  No eval_return data found for {subfolder.name} subfolder")
     
     # Create DataFrame
     if all_data:
@@ -108,22 +111,112 @@ def extract_eval_return_from_folder(folder_path):
 # %%
 # Example usage
 # Set the folder path here
-LOG_FOLDER = '../log_dmc/dmc_proprio'
+if False:
+    LOG_FOLDER = '../log_dmc/dmc_proprio'
+    #LOG_FOLDER = '../log_atari100k/original/seed_{}'
+    # Extract eval_return metrics
+    df = extract_eval_return_from_folder(LOG_FOLDER)
 
-# Extract eval_return metrics
-df = extract_eval_return_from_folder(LOG_FOLDER)
-
-# Display results
-print("\n" + "="*50)
-print("Results:")
-print("="*50)
-print(f"\nTotal entries: {len(df)}")
-print(f"Unique subfolders: {df['subfolder_name'].nunique() if len(df) > 0 else 0}")
-df.head()
+    # Display results
+    print("\n" + "="*50)
+    print("Results:")
+    print("="*50)
+    print(f"\nTotal entries: {len(df)}")
+    print(f"Unique subfolders: {df['subfolder_name'].nunique() if len(df) > 0 else 0}")
+    df.head()
+    folder_name = os.path.basename(LOG_FOLDER)
+    df.to_csv(os.path.join('../data/dmc', folder_name + '.csv'), index=False)
 
 # %%
-# Get the name of the folder (without path)
-folder_name = os.path.basename(LOG_FOLDER)
-df.to_csv(os.path.join('../data/dmc', folder_name + '.csv'), index=False)
+# Runniing the data
+LOG_FOLDER = '../log_atari100k/original/'
+DEST_FOLDER = '../data/atari100k/orginal'
+os.makedirs(DEST_FOLDER, exist_ok=True)
+
+df_list = []
+
+for seed_nr in range(4):
+    folder = f'{LOG_FOLDER}/seed_{seed_nr}'
+    df = extract_eval_return_from_folder(folder)   
+    df.to_csv(os.path.join(DEST_FOLDER, 'seed_{}.csv'.format(seed_nr)), index=False)
+    pivoted_df = df.pivot(index='step_nr', columns='subfolder_name', values='eval_return')
+    df_list.append(pivoted_df)
 # %%
+def aggregate_pivoted_dataframes(dfs_list):
+    """
+    Takes a list of DataFrames (with identical indices and columns)
+    and calculates the mean and std for each column across the list.
+    """
+    if not dfs_list:
+        return None
+
+    # 1. Concatenate all DataFrames vertically. 
+    # Since indices are identical (step_nr), duplicate indices will appear.
+    combined_df = pd.concat(dfs_list)
+
+    # 2. Group by the index (step_nr) and calculate mean and std
+    # This collapses the duplicate indices back into unique rows
+    stats_df = combined_df.groupby(level=0).agg(['mean', 'std'])
+
+    # 3. Flatten the hierarchical column structure
+    # The agg function creates a MultiIndex (e.g., 'model_a' -> 'mean', 'std')
+    # We map this to 'model_a_mean', 'model_a_std'
+    stats_df.columns = [f'{col}_{stat}' for col, stat in stats_df.columns]
+
+    return stats_df
+
+stats_df = aggregate_pivoted_dataframes(df_list)
+stats_df.to_csv(os.path.join(DEST_FOLDER, 'summary.csv'), index=False)
+stats_df.head()
+
+
+# %%
+import matplotlib.pyplot as plt
+
+
+def plot_mean_and_std(stats_df):
+    """
+    Plots mean and std, but scales the Y-axis based ONLY on the mean line.
+    """
+    base_names = [col.replace('_mean', '') for col in stats_df.columns if col.endswith('_mean')]
+    
+    for name in base_names:
+        mean_col = f"{name}_mean"
+        std_col = f"{name}_std"
+        
+        if std_col not in stats_df.columns:
+            continue
+            
+        plt.figure(figsize=(10, 6))
+        
+        # 1. Plot Mean and Std
+        plt.plot(stats_df.index, stats_df[mean_col], label=f'{name} Mean', linewidth=2)
+        plt.fill_between(
+            stats_df.index, 
+            stats_df[mean_col] - stats_df[std_col], 
+            stats_df[mean_col] + stats_df[std_col], 
+            alpha=0.3,
+            label=f'{name} Std Dev'
+        )
+        
+        # 2. Calculate limits based ONLY on the mean column
+        y_min = stats_df[mean_col].min()
+        y_max = stats_df[mean_col].max()
+        
+        # 3. Add 10% padding so the line isn't touching the edges
+        padding = (y_max - y_min) * 0.1
+        if padding == 0: padding = 0.1  # Safety for flat lines
+        
+        # 4. Force the Y-axis to ignore the std deviation height
+        plt.ylim(y_min - padding, y_max + padding)
+        
+        plt.title(f'Performance: {name} (Scaled to Mean)')
+        plt.xlabel('Step Nr')
+        plt.ylabel('Value')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.show()
+        
+        
+plot_mean_and_std(stats_df)
 # %%
