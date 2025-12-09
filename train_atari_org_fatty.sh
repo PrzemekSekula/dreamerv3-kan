@@ -3,9 +3,9 @@
 ############################################
 # Default parameters
 ############################################
-LOG_FOLDER_DEFAULT="org"
+LOG_FOLDER_DEFAULT="original/seed_0"
 # Define a default list of GPU IDs to use
-GPU_LIST_DEFAULT=(1 2 3 5 6)
+GPU_LIST_DEFAULT=(1 2 3 4 5 6 7 8 9)
 RUNS_PER_GPU_DEFAULT=3
 
 ############################################
@@ -110,7 +110,7 @@ start_training() {
     --configs atari100k \
     --task atari_"${task}" \
     --logdir ./log_atari100k/"${LOG_FOLDER}"/"${task}" \
-    --checkpointdir ./checkpoints/"${LOG_FOLDER}"/"${task}" \
+    --checkpointdir ./checkpoints/atari100k/"${LOG_FOLDER}"/"${task}" \
     --device cuda:"${gpu_id}" &
 
   # Store the PID of the newly launched process

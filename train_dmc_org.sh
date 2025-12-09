@@ -4,9 +4,9 @@
 # Default parameters
 ############################################
 CONFIG_ORG="dmc_proprio"
-LOG_FOLDER_DEFAULT="$CONFIG_ORG"
+LOG_FOLDER_DEFAULT="${CONFIG_ORG}/seed_1"
 # Define a default list of GPU IDs to use
-GPU_LIST_DEFAULT=(0 1 2 3 4 5 6 7 8 9)
+GPU_LIST_DEFAULT=(3 4 5 6 7 8 9)
 RUNS_PER_GPU_DEFAULT=4
 
 ############################################
@@ -16,7 +16,7 @@ LOG_FOLDER="$LOG_FOLDER_DEFAULT"
 # Copy the default array
 GPU_LIST=("${GPU_LIST_DEFAULT[@]}")
 RUNS_PER_GPU="$RUNS_PER_GPU_DEFAULT"
-CONFIG="$CONFIG_OFG"
+CONFIG="$CONFIG_ORG"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -63,7 +63,7 @@ TASKS=(
   finger_spin
   finger_turn_easy
   finger_turn_hard
-  hopper_hop 
+  hopper_hop
   hopper_stand
   pendulum_swingup
   reacher_easy
@@ -104,6 +104,7 @@ start_training() {
   local gpu_id=${GPU_LIST[$gpu_index]}
 
   echo "Starting dmc_${task} on cuda:${gpu_id} (slot ${slot_id})"
+
   python3 dreamer.py \
     --configs "${CONFIG}" \
     --task dmc_"${task}" \
