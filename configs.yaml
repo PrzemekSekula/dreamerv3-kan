@@ -95,6 +95,15 @@ defaults:
   disag_units: 400
   disag_action_cond: False
 
+  # Replace_model
+  replace_all_checkpoint: null
+  replace_actor_checkpoint: null
+  replace_critic_checkpoint: null
+  replace_encoder_checkpoint: null
+  replace_decoder_checkpoint: null
+
+
+  
 dmc_proprio:
   steps: 5e5
   action_repeat: 2

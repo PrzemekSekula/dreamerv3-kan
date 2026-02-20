@@ -4,9 +4,9 @@
 # Default parameters
 ############################################
 CONFIG_ORG="dmc_proprio"
-LOG_FOLDER_DEFAULT="${CONFIG_ORG}/seed_1"
+LOG_FOLDER_DEFAULT="${CONFIG_ORG}/seed_2"
 # Define a default list of GPU IDs to use
-GPU_LIST_DEFAULT=(3 4 5 6 7 8 9)
+GPU_LIST_DEFAULT=(9 8 7 6 5 4 3)
 RUNS_PER_GPU_DEFAULT=4
 
 ############################################

@@ -132,6 +132,34 @@ class Dreamer(nn.Module):
             else:
                 self._metrics[name].append(value)
 
+def load_partial_checkpoint(agent, checkpoint_path, module_key_prefix, target_module, device):
+    path = pathlib.Path(checkpoint_path).expanduser()
+    if not path.exists():
+        print(f"Checkpoint not found: {path}")
+        return
+    print(f"Loading partial checkpoint from {path} for {module_key_prefix}...")
+    checkpoint = torch.load(path, map_location=device)
+    if "agent_state_dict" in checkpoint:
+        state_dict = checkpoint["agent_state_dict"]
+    else:
+        state_dict = checkpoint # Assume it is the state dict itself
+    
+    # Filter and adjust keys
+    new_state_dict = {}
+    for k, v in state_dict.items():
+        # Handle compiled model prefix
+        k_clean = k.replace("_orig_mod.", "")
+        if k_clean.startswith(module_key_prefix):
+            new_key = k_clean[len(module_key_prefix):] # Strip prefix
+            new_state_dict[new_key] = v
+            
+    if not new_state_dict:
+         print(f"Warning: No keys found starting with {module_key_prefix} in checkpoint.")
+         return
+
+    # Load into target module
+    target_module.load_state_dict(new_state_dict, strict=True)
+    print(f"Successfully loaded {len(new_state_dict)} parameters for {module_key_prefix}.")
 
 def count_steps(folder):
     return sum(int(str(n).split("-")[-1][:-4]) - 1 for n in folder.glob("*.npz"))
@@ -298,6 +326,42 @@ def main(config):
         train_dataset,
     ).to(config.device)
     agent.requires_grad_(requires_grad=False)
+    
+    # Granular Checkpoint Replacement Logic
+    if config.replace_all_checkpoint:
+        path = pathlib.Path(config.replace_all_checkpoint).expanduser()
+        if path.exists():
+            print(f"Loading full agent from {path}...")
+            checkpoint = torch.load(path, map_location=config.device)
+            if "agent_state_dict" in checkpoint:
+                 agent.load_state_dict(checkpoint["agent_state_dict"], strict=False)
+            else:
+                 agent.load_state_dict(checkpoint, strict=False)
+        else:
+            print(f"Replace all checkpoint not found: {path}")
+
+    # Unwrap compiled modules if necessary
+    wm = agent._wm
+    if hasattr(wm, "_orig_mod"):
+        wm = wm._orig_mod
+    
+    task_behavior = agent._task_behavior
+    if hasattr(task_behavior, "_orig_mod"):
+        task_behavior = task_behavior._orig_mod
+
+    if config.replace_actor_checkpoint:
+        load_partial_checkpoint(agent, config.replace_actor_checkpoint, "_task_behavior.actor.", task_behavior.actor, config.device)
+        
+    if config.replace_critic_checkpoint:
+        load_partial_checkpoint(agent, config.replace_critic_checkpoint, "_task_behavior.value.", task_behavior.value, config.device)
+        
+    if config.replace_encoder_checkpoint:
+        load_partial_checkpoint(agent, config.replace_encoder_checkpoint, "_wm.encoder.", wm.encoder, config.device)
+        
+    if config.replace_decoder_checkpoint:
+        load_partial_checkpoint(agent, config.replace_decoder_checkpoint, "_wm.heads.decoder.", wm.heads["decoder"], config.device)
+
+
     if config.checkpointdir is not None:
         if (checkpointdir / "latest.pt").exists():
             checkpoint = torch.load(checkpointdir / "latest.pt")
