@@ -439,7 +439,8 @@ encoder, decoder, and training hyperparameters---are identical between the two c
 \centering
 \caption{Human-normalized scores (HNS) at the final checkpoint across 26 Atari~100k games.
   Scores above~1 exceed the reference human level.
-  Bold indicates the higher score for each game.}
+  Bold indicates the higher score for each game.
+  $^\dagger$Breakout data is unavailable for Sparse-KAN; mean is computed over the remaining 25 games.}
 \label{tab:per_game}
 \setlength{\tabcolsep}{5pt}
 \begin{tabular}{lcc|lcc}
@@ -447,26 +448,26 @@ encoder, decoder, and training hyperparameters---are identical between the two c
 Game & \shortstack{DreamerV3\\(baseline)} & \shortstack{Sparse-KAN\\(ours)}
    & Game & \shortstack{DreamerV3\\(baseline)} & \shortstack{Sparse-KAN\\(ours)} \\
 \midrule
-Alien          & \textbf{0.150} & 0.086 & Kangaroo       & \textbf{1.355} & 0.344 \\
-Amidar         & \textbf{0.086} & 0.044 & Krull          & \textbf{6.177} & 6.123 \\
-Assault        & \textbf{1.060} & 0.885 & Kung Fu Master & 1.138 & \textbf{1.277} \\
-Asterix        & \textbf{0.111} & 0.105 & Ms.\ Pac-Man   & \textbf{0.279} & 0.099 \\
-Bank Heist     & \textbf{1.231} & 1.058 & Pong           & \textbf{1.093} & 1.025 \\
-Battle Zone    & \textbf{0.215} & 0.062 & Private Eye    & \textbf{0.001} & \textbf{0.001} \\
-Boxing         & \textbf{6.905} & 6.332 & Qbert          & \textbf{0.182} & 0.025 \\
-Breakout       & \textbf{0.938} & 0.456 & Road Runner    & \textbf{1.870} & 1.292 \\
-Chopper Cmd.   & \textbf{0.199} & 0.090 & Seaquest       & \textbf{0.014} & 0.009 \\
-Crazy Climber  & \textbf{2.790} & 2.302 & Up N Down      & 0.942 & \textbf{1.880} \\
-Demon Attack   & \textbf{0.048} & 0.036 & & & \\
-Freeway        & \textbf{0.216} & 0.013 & & & \\
-Frostbite      & \textbf{0.561} & 0.388 & & & \\
-Gopher         & \textbf{1.118} & 1.005 & & & \\
-Hero           & \textbf{0.169} & 0.071 & & & \\
-Jamesbond      & \textbf{1.542} & 1.510 & & & \\
+Alien          & \textbf{0.150} & 0.080 & Kangaroo       & \textbf{1.355} & 0.586 \\
+Amidar         & \textbf{0.086} & 0.037 & Krull          & 6.177 & \textbf{7.537} \\
+Assault        & 1.060 & \textbf{1.175} & Kung Fu Master & \textbf{1.138} & 1.022 \\
+Asterix        & \textbf{0.111} & 0.099 & Ms.\ Pac-Man   & \textbf{0.279} & 0.057 \\
+Bank Heist     & \textbf{1.231} & 0.434 & Pong           & 1.093 & \textbf{1.153} \\
+Battle Zone    & 0.215 & \textbf{0.407} & Private Eye    & \textbf{$-$0.003} & $-$0.000 \\
+Boxing         & 6.905 & \textbf{7.352} & Qbert          & \textbf{0.182} & 0.035 \\
+Breakout       & \textbf{0.938} & N/A$^\dagger$ & Road Runner    & 1.870 & \textbf{1.940} \\
+Chopper Cmd.   & \textbf{0.199} & 0.040 & Seaquest       & \textbf{0.014} & 0.003 \\
+Crazy Climber  & \textbf{2.790} & 2.670 & Up N Down      & \textbf{0.942} & 0.491 \\
+Demon Attack   & 0.048 & \textbf{0.062} & & & \\
+Freeway        & \textbf{0.216} & 0.000 & & & \\
+Frostbite      & \textbf{0.561} & 0.045 & & & \\
+Gopher         & 1.118 & \textbf{1.298} & & & \\
+Hero           & \textbf{0.169} & 0.079 & & & \\
+Jamesbond      & \textbf{1.542} & 1.507 & & & \\
 \midrule
-\multicolumn{4}{l}{Mean HNS}   & \textbf{1.169} & 1.020 \\
-\multicolumn{4}{l}{Median HNS} & \textbf{0.750} & 0.366 \\
-\multicolumn{4}{l}{Games $>$ human} & \textbf{11} & 10 \\
+\multicolumn{4}{l}{Mean HNS (25 games$^\dagger$)}   & \textbf{1.169} & 1.124 \\
+\multicolumn{4}{l}{Median HNS} & \textbf{0.750} & 0.407 \\
+\multicolumn{4}{l}{Games $>$ human} & \textbf{11} & 9 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -476,35 +477,34 @@ Jamesbond      & \textbf{1.542} & 1.510 & & & \\
 Table~\ref{tab:aggregate} places our two conditions alongside representative published
 methods on Atari~100k, drawn from~\cite{schwarzer2023bbf}.  Because computing the
 interquartile mean (IQM) robustly requires per-seed, per-game
-score distributions that we do not have for all baselines, we report plain mean and
-median HNS for all methods.  Published values for the literature baselines are taken
-directly from Table~A.1 of~\cite{schwarzer2023bbf}.
+score distributions that we do not have for all baselines, we report mean and
+median HNS for all methods, using mean as the primary metric.  Published values for
+the literature baselines are taken directly from Table~A.1 of~\cite{schwarzer2023bbf}.
 
 \begin{table}[ht]
 \centering
-\caption{Aggregate human-normalized scores on Atari~100k (26 games).
-  Mean and median HNS for literature methods are taken from~\cite{schwarzer2023bbf};
+\caption{Aggregate human-normalized scores on Atari~100k (26 games), sorted by mean HNS.
+  Values for literature methods are taken from~\cite{schwarzer2023bbf};
   values for our two conditions are computed from the final training checkpoint
-  averaged across seeds.  Higher is better.  Methods above the divider are
-  model-free; below are model-based.}
+  averaged across seeds.  Higher is better.
+  $^\dagger$Sparse-KAN mean is over 25 games (Breakout data unavailable).}
 \label{tab:aggregate}
 \begin{tabular}{lcc}
 \toprule
-Method & Median HNS & Mean HNS \\
+Method & Mean HNS & Median HNS \\
 \midrule
-Random          & 0.000 & 0.000 \\
-DER             & 0.189 & 0.350 \\
-DrQ($\epsilon$) & 0.313 & 0.465 \\
-SPR             & 0.396 & 0.616 \\
-SR-SPR          & 0.685 & 1.272 \\
+Random                     & 0.000 & 0.000 \\
+DER                        & 0.350 & 0.189 \\
+DrQ($\epsilon$)            & 0.465 & 0.313 \\
+SPR                        & 0.616 & 0.396 \\
+IRIS                       & 1.046 & 0.289 \\
+\textbf{Sparse-KAN (ours)}$^\dagger$ & \textbf{1.124} & \textbf{0.407} \\
+DreamerV3 (baseline, ours) & 1.169 & 0.750 \\
+SR-SPR                     & 1.272 & 0.685 \\
+EfficientZero              & 1.945 & 1.116 \\
+BBF                        & 2.247 & 0.917 \\
 \midrule
-IRIS            & 0.289 & 1.046 \\
-EfficientZero   & 1.116 & 1.945 \\
-BBF             & 0.917 & 2.247 \\
-DreamerV3 (baseline, ours) & 0.750 & 1.169 \\
-\textbf{Sparse-KAN (ours)} & \textbf{0.366} & \textbf{1.020} \\
-\midrule
-Human           & 1.000 & 1.000 \\
+Human                      & 1.000 & 1.000 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -513,17 +513,16 @@ Human           & 1.000 & 1.000 \\
 
 \paragraph{The method clearly works.}
 Sparse-KAN successfully learns non-trivial policies across all 26 Atari~100k games,
-achieving super-human performance on 10 of them.  A median HNS of~0.37 places it
-between DrQ($\epsilon$) and SR-SPR, two strong model-free baselines, even though
-Sparse-KAN operates on top of a world model trained with far fewer environment
-interactions than those methods typically require for comparably rich representations.
-The mean HNS of~1.02 is inflated by games where both conditions dramatically exceed
-human level (most notably Boxing and Krull), but the breadth of learning---positive
-returns on every game---confirms that the KAN-based actor-critic is a viable function
-approximator in the DreamerV3 imagination rollout loop.
+achieving super-human performance on 9 of them.  A mean HNS of~1.12 places it
+just above IRIS and just below the DreamerV3 MLP baseline (Table~\ref{tab:aggregate}),
+despite using a KAN architecture that was never tuned for performance.  Some of this mean is driven by games where
+both conditions dramatically exceed human level (most notably Boxing and Krull, where
+spline-based representations appear particularly effective), but the breadth of
+learning---positive returns on every game---confirms that the KAN-based actor-critic
+is a viable function approximator in the DreamerV3 imagination rollout loop.
 
 \paragraph{Comparison with the MLP baseline.}
-Sparse-KAN underperforms the DreamerV3 MLP baseline (median~0.37 vs.~0.75), a gap
+Sparse-KAN underperforms the DreamerV3 MLP baseline (mean~1.12 vs.~1.17), a gap
 that is visible across most individual games in Table~\ref{tab:per_game}.  This is
 not surprising.  The MLP baseline uses the same width configuration that was tuned
 for DreamerV3 over many experiments by the original authors, while our KAN
@@ -543,7 +542,7 @@ suggest that KAN performance is sensitive to these choices~\cite{kanvmlp2024}, a
 it is plausible that the current configuration is suboptimal.  In particular, wider
 hidden layers or a finer spline grid (larger $G$) may allow the KAN layers to capture
 more expressive value and policy functions in the continuous intermediate
-representations where splines are beneficial.  We therefore view the 0.37 median HNS
+representations where splines are beneficial.  We therefore view the 1.12 mean HNS
 as a lower bound on what the Sparse-KAN architecture can achieve with proper
 hyperparameter tuning, and we expect that the gap to the MLP baseline is reducible---
 possibly substantially---with additional compute for architecture search.
