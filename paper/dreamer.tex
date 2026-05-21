@@ -563,4 +563,127 @@ possibly substantially---with additional compute for architecture search.
 \bibliographystyle{plain}
 \bibliography{dreamer}
 
+% ============================================================
+\appendix
+\section{Per-Game Training Curves}
+\label{app:curves}
+% ============================================================
+
+The following figures show evaluation return over the course of training for
+all 26 Atari~100k games.  Each plot displays the mean return (solid line)
+$\pm$ one standard deviation across seeds (shaded band).
+\textcolor[HTML]{2166ac}{\textbf{Blue}}: DreamerV3 with MLP actor-critic
+(baseline).
+\textcolor[HTML]{d6604d}{\textbf{Red}}: Sparse-KAN actor-critic (ours).
+The x-axis represents environment steps; each checkpoint corresponds to
+10\,000 steps for a total of 4\,$\times$\,10$^5$ steps.
+Breakout data is unavailable for Sparse-KAN (see footnote in
+Table~\ref{tab:per_game}).
+
+\bigskip
+
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/alien.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/amidar.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/assault.pdf}
+\end{minipage}
+
+\medskip
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/asterix.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/bank_heist.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/battle_zone.pdf}
+\end{minipage}
+
+\medskip
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/boxing.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/breakout.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/chopper_command.pdf}
+\end{minipage}
+
+\medskip
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/crazy_climber.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/demon_attack.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/freeway.pdf}
+\end{minipage}
+
+\medskip
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/frostbite.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/gopher.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/hero.pdf}
+\end{minipage}
+
+\medskip
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/jamesbond.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/kangaroo.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/krull.pdf}
+\end{minipage}
+
+\medskip
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/kung_fu_master.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/ms_pacman.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/pong.pdf}
+\end{minipage}
+
+\medskip
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/private_eye.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/qbert.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/road_runner.pdf}
+\end{minipage}
+
+\medskip
+\noindent
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/seaquest.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  \centering\includegraphics[width=\linewidth]{figures/up_n_down.pdf}
+\end{minipage}
+
 \end{document}
