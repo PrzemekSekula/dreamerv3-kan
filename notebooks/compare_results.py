@@ -1,3 +1,16 @@
+"""Compare eval_return training curves between two conditions.
+
+Loads two per-seed/aggregated CSVs (each with columns ``subfolder_name``,
+``step_nr``, ``eval_return``) and plots, for every environment shared by the
+two files, an overlaid comparison of their eval_return-vs-step curves.  The
+helper functions can save the per-environment figures to disk or return them
+for interactive display.
+
+Intended to be run as a Jupyter-style cell script (``# %%`` blocks); the
+example cell at the bottom compares a KAN encoder run against a proprioceptive
+baseline.
+"""
+
 # %%
 import pandas as pd
 import matplotlib.pyplot as plt

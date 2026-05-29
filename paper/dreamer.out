@@ -1,0 +1,13 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Related Work}{}% 2
+\BOOKMARK [1][-]{section.3}{Methods}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{DreamerV3 Background}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Kolmogorov-Arnold Networks}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.3}{Binary Input Equivalence}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.4}{Sparse-KAN: Hybrid Architecture}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.5}{Training Setup}{section.3}% 8
+\BOOKMARK [1][-]{section.4}{Results}{}% 9
+\BOOKMARK [2][-]{subsection.4.1}{Per-game Performance}{section.4}% 10
+\BOOKMARK [2][-]{subsection.4.2}{Comparison with Published Methods}{section.4}% 11
+\BOOKMARK [2][-]{subsection.4.3}{Discussion}{section.4}% 12
+\BOOKMARK [1][-]{appendix.A}{Per-Game Training Curves}{}% 13

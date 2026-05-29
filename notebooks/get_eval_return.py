@@ -1,3 +1,16 @@
+"""Extract eval_return metrics from TensorBoard logs and build summary CSVs.
+
+Walks the per-seed TensorBoard log folders for a condition, extracts the
+``eval_return`` scalar for every environment via
+``extract_eval_return_from_folder``, and writes one CSV per seed.  The per-seed
+results are then pivoted (step_nr × environment) and aggregated with
+``aggregate_pivoted_dataframes`` into a ``summary.csv`` of per-step mean/std,
+which is finally plotted with ``plot_mean_and_std``.
+
+Intended to be run as a Jupyter-style cell script (``# %%`` blocks); edit the
+``LOG_FOLDER``/``DEST_FOLDER`` and the seed range to target a given condition.
+"""
+
 # %%
 import os
 
@@ -29,13 +42,13 @@ if False:
 
 # %%
 # Runniing the data
-LOG_FOLDER = '../log_atari100k/original/'
-DEST_FOLDER = '../data/atari100k/orginal'
+LOG_FOLDER = '../log_atari100k/kan_ac/'
+DEST_FOLDER = '../data/atari100k/kan_ac'
 os.makedirs(DEST_FOLDER, exist_ok=True)
 
 df_list = []
 
-for seed_nr in range(4):
+for seed_nr in [4]:#range(4):
     folder = f"{LOG_FOLDER}/seed_{seed_nr}"
     df = extract_eval_return_from_folder(folder)
     df.to_csv(os.path.join(DEST_FOLDER, "seed_{}.csv".format(seed_nr)), index=False)

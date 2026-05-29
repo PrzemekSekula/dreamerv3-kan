@@ -1,3 +1,14 @@
+"""Measure per-environment training wall-clock duration from TensorBoard logs.
+
+Scans the subfolders of a log directory (one per environment), reads the wall
+times recorded in each TensorBoard event file to find when logging started and
+ended, and builds a DataFrame of start/end times and total duration per
+environment, sorted from longest- to shortest-running.
+
+Intended to be run as a Jupyter-style cell script (``# %%`` blocks); set
+``LOG_FOLDER`` to the directory whose runs should be timed.
+"""
+
 # %%
 import os
 from datetime import datetime

@@ -141,3 +141,5 @@ dmypy.json
 log*
 efficient_kan/*
 checkpoint*
+.claude/
+CLAUDE.md

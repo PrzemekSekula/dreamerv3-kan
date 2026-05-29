@@ -1,0 +1,115 @@
+\begin{thebibliography}{10}
+
+\bibitem{blealtan2024}
+Blealtan.
+\newblock Efficient-{KAN}.
+\newblock \url{https://github.com/Blealtan/efficient-kan}, 2024.
+
+\bibitem{kanoffline2024}
+Haihong Guo, Fengxin Li, Jiao Li, and Hongyan Liu.
+\newblock {KAN} v.s.\ {MLP} for offline reinforcement learning.
+\newblock {\em arXiv preprint arXiv:2409.09653}, 2024.
+
+\bibitem{ha2018world}
+David Ha and J{\"u}rgen Schmidhuber.
+\newblock World models.
+\newblock {\em arXiv preprint arXiv:1803.10122}, 2018.
+
+\bibitem{hafner2019dreamer}
+Danijar Hafner, Timothy Lillicrap, Jimmy Ba, and Mohammad Norouzi.
+\newblock Dream to control: {L}earning behaviors by latent imagination.
+\newblock In {\em International Conference on Learning Representations}, 2020.
+
+\bibitem{hafner2019planet}
+Danijar Hafner, Timothy Lillicrap, Ian Fischer, Ruben Villegas, David Ha,
+  Honglak Lee, and James Davidson.
+\newblock Learning latent dynamics for planning from pixels.
+\newblock In {\em International Conference on Machine Learning}, 2019.
+
+\bibitem{hafner2021dreamerv2}
+Danijar Hafner, Timothy Lillicrap, Mohammad Norouzi, and Jimmy Ba.
+\newblock Mastering {A}tari with discrete world models.
+\newblock In {\em International Conference on Learning Representations}, 2021.
+
+\bibitem{hafner2023dreamerv3}
+Danijar Hafner, Jurgis Pasukonis, Jimmy Ba, and Timothy Lillicrap.
+\newblock Mastering diverse domains through world models.
+\newblock {\em Transactions on Machine Learning Research}, 2024.
+\newblock arXiv:2301.04104.
+
+\bibitem{kaiser2020atari100k}
+{\L}ukasz Kaiser, Mohammad Babaeizadeh, Piotr Mi{\l}os, B{\l}a{\.z}ej
+  Osi{\'n}ski, Roy~H. Campbell, Konrad Czechowski, Dumitru Erhan, Chelsea Finn,
+  Piotr Kozakowski, Sergey Levine, Afroz Mohiuddin, Ryan Sepassi, George
+  Tucker, and Henryk Michalewski.
+\newblock Model-based reinforcement learning for {A}tari.
+\newblock In {\em International Conference on Learning Representations}, 2020.
+
+\bibitem{kanppo2024}
+Victor~Augusto Kich, Jair~Augusto Bottega, Raul Steinmetz, Ricardo~Bedin
+  Grando, Ayano Yorozu, and Akihisa Ohya.
+\newblock Kolmogorov--{A}rnold network for online reinforcement learning.
+\newblock {\em arXiv preprint arXiv:2408.04841}, 2024.
+
+\bibitem{kolmogorov1957superpositions}
+Andrei~N. Kolmogorov.
+\newblock On the representation of continuous functions of many variables by
+  superposition of continuous functions of one variable and addition.
+\newblock {\em Doklady Akademii Nauk SSSR}, 114(5):953--956, 1957.
+
+\bibitem{li2024fastkan}
+Ziyao Li.
+\newblock Kolmogorov--{A}rnold networks are radial basis function networks.
+\newblock {\em arXiv preprint arXiv:2405.06721}, 2024.
+
+\bibitem{liu2024kan}
+Ziming Liu, Yixuan Wang, Sachin Vaidya, Fabian Ruehle, James Halverson, Marin
+  Solja{\v{c}}i{\'c}, Thomas~Y. Hou, and Max Tegmark.
+\newblock {KAN}: {K}olmogorov--{A}rnold networks.
+\newblock {\em arXiv preprint arXiv:2404.19756}, 2024.
+
+\bibitem{ukan2024}
+Alireza Moradzadeh, Lukasz Wawrzyniak, Miles Macklin, and Saee~G. Paliwal.
+\newblock {UKAN}: Unbound {K}olmogorov--{A}rnold network accompanied with
+  accelerated library.
+\newblock {\em arXiv preprint arXiv:2408.11200}, 2024.
+
+\bibitem{qiu2024relukan}
+Qi~Qiu, Tao Zhu, Helin Gong, Liming Chen, and Huansheng Ning.
+\newblock {ReLU-KAN}: New {K}olmogorov--{A}rnold networks that only need matrix
+  addition, dot multiplication, and {ReLU}.
+\newblock {\em arXiv preprint arXiv:2406.02075}, 2024.
+
+\bibitem{kanforgetting2024}
+Mohammad~Marufur Rahman, Guanchu Wang, Kaixiong Zhou, Minghan Chen, and Fan
+  Yang.
+\newblock Catastrophic forgetting in {K}olmogorov--{A}rnold networks.
+\newblock {\em arXiv preprint arXiv:2511.12828}, 2025.
+
+\bibitem{schwarzer2023bbf}
+Max Schwarzer, Johan Obando-Ceron, Aaron Courville, Marc~G. Bellemare, Rishabh
+  Agarwal, and Pablo~Samuel Castro.
+\newblock Bigger, better, faster: Human-level {A}tari with human-level
+  efficiency.
+\newblock In {\em Proceedings of the 40th International Conference on Machine
+  Learning}, volume 202 of {\em Proceedings of Machine Learning Research},
+  pages 30365--30380. PMLR, 2023.
+
+\bibitem{kandreamer2025}
+Chenwei Shi and Xueyu Luan.
+\newblock {KAN}-dreamer: Benchmarking {K}olmogorov--{A}rnold networks as
+  function approximators in world models.
+\newblock {\em arXiv preprint arXiv:2512.07437}, 2025.
+
+\bibitem{williams1992simple}
+Ronald~J. Williams.
+\newblock Simple statistical gradient-following algorithms for connectionist
+  reinforcement learning.
+\newblock {\em Machine Learning}, 8(3--4):229--256, 1992.
+
+\bibitem{kanvmlp2024}
+Runpeng Yu, Weihao Yu, and Xinchao Wang.
+\newblock {KAN} or {MLP}: A fairer comparison.
+\newblock {\em arXiv preprint arXiv:2407.16674}, 2024.
+
+\end{thebibliography}

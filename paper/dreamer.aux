@@ -1,0 +1,112 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{hafner2023dreamerv3}
+\citation{hafner2023dreamerv3}
+\citation{liu2024kan}
+\citation{kanvmlp2024}
+\citation{kanforgetting2024}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
+\citation{kaiser2020atari100k}
+\citation{ha2018world}
+\citation{hafner2019planet}
+\citation{hafner2019dreamer}
+\citation{hafner2021dreamerv2}
+\citation{hafner2023dreamerv3}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}}
+\@writefile{toc}{\contentsline {paragraph}{World model-based reinforcement learning.}{2}{section*.1}}
+\citation{li2024fastkan}
+\citation{qiu2024relukan}
+\citation{ukan2024}
+\citation{blealtan2024}
+\citation{kanvmlp2024}
+\citation{kanforgetting2024}
+\citation{kanppo2024}
+\citation{kanoffline2024}
+\citation{kandreamer2025}
+\@writefile{toc}{\contentsline {paragraph}{Kolmogorov-Arnold Networks and their efficient variants.}{3}{section*.2}}
+\@writefile{toc}{\contentsline {paragraph}{KANs in reinforcement learning.}{3}{section*.3}}
+\@writefile{toc}{\contentsline {paragraph}{Closest prior work.}{3}{section*.4}}
+\citation{kolmogorov1957superpositions}
+\@writefile{toc}{\contentsline {paragraph}{Positioning of the present work.}{4}{section*.5}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Methods}{4}{section.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}DreamerV3 Background}{4}{subsection.3.1}}
+\@writefile{toc}{\contentsline {paragraph}{Discrete latent variables.}{4}{section*.6}}
+\@writefile{toc}{\contentsline {paragraph}{Feature representation.}{4}{section*.7}}
+\@writefile{toc}{\contentsline {paragraph}{Behavior learning via imagination.}{4}{section*.8}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Kolmogorov-Arnold Networks}{4}{subsection.3.2}}
+\@writefile{toc}{\contentsline {paragraph}{Formulation.}{4}{section*.9}}
+\citation{liu2024kan}
+\citation{blealtan2024}
+\newlabel{eq:kanlinear}{{8}{5}{Formulation}{equation.3.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Computational overhead.}{5}{section*.10}}
+\@writefile{toc}{\contentsline {paragraph}{Efficient sparse KAN.}{5}{section*.11}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Binary Input Equivalence}{5}{subsection.3.3}}
+\newlabel{prop:binary-equivalence}{{1}{5}{KAN linear layer with binary inputs is affine}{proposition.1}{}}
+\citation{williams1992simple}
+\citation{kaiser2020atari100k}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Sparse-KAN: Hybrid Architecture}{6}{subsection.3.4}}
+\@writefile{toc}{\contentsline {paragraph}{Architecture.}{6}{section*.12}}
+\@writefile{toc}{\contentsline {paragraph}{Layer widths and spline parameters.}{6}{section*.13}}
+\@writefile{toc}{\contentsline {paragraph}{Action distribution.}{6}{section*.14}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Training Setup}{6}{subsection.3.5}}
+\@writefile{toc}{\contentsline {paragraph}{Environment and benchmark.}{6}{section*.15}}
+\@writefile{toc}{\contentsline {paragraph}{World model.}{6}{section*.16}}
+\citation{schwarzer2023bbf}
+\citation{schwarzer2023bbf}
+\@writefile{toc}{\contentsline {paragraph}{Actor and critic.}{7}{section*.17}}
+\@writefile{toc}{\contentsline {paragraph}{Optimization.}{7}{section*.18}}
+\@writefile{toc}{\contentsline {paragraph}{Baseline.}{7}{section*.19}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{7}{section.4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Per-game Performance}{7}{subsection.4.1}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Human-normalized scores (HNS) at the final checkpoint across 26 Atari\nobreakspace  {}100k games. Scores above\nobreakspace  {}1 exceed the reference human level. Bold indicates the higher score for each game. $^\dagger $Breakout data is unavailable for Sparse-KAN; mean is computed over the remaining 25 games.\relax }}{7}{table.caption.20}}
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:per_game}{{1}{7}{Human-normalized scores (HNS) at the final checkpoint across 26 Atari~100k games. Scores above~1 exceed the reference human level. Bold indicates the higher score for each game. $^\dagger $Breakout data is unavailable for Sparse-KAN; mean is computed over the remaining 25 games.\relax }{table.caption.20}{}}
+\citation{schwarzer2023bbf}
+\citation{schwarzer2023bbf}
+\citation{kanvmlp2024}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Comparison with Published Methods}{8}{subsection.4.2}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Aggregate human-normalized scores on Atari\nobreakspace  {}100k (26 games), sorted by mean HNS. Values for literature methods are taken from\nobreakspace  {}\cite  {schwarzer2023bbf}; values for our two conditions are computed from the final training checkpoint averaged across seeds. Higher is better. $^\dagger $Sparse-KAN mean is over 25 games (Breakout data unavailable).\relax }}{8}{table.caption.21}}
+\newlabel{tab:aggregate}{{2}{8}{Aggregate human-normalized scores on Atari~100k (26 games), sorted by mean HNS. Values for literature methods are taken from~\cite {schwarzer2023bbf}; values for our two conditions are computed from the final training checkpoint averaged across seeds. Higher is better. $^\dagger $Sparse-KAN mean is over 25 games (Breakout data unavailable).\relax }{table.caption.21}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Discussion}{8}{subsection.4.3}}
+\@writefile{toc}{\contentsline {paragraph}{The method clearly works.}{8}{section*.22}}
+\@writefile{toc}{\contentsline {paragraph}{Comparison with the MLP baseline.}{8}{section*.23}}
+\@writefile{toc}{\contentsline {paragraph}{Computational constraints and room for optimization.}{8}{section*.24}}
+\bibstyle{plain}
+\bibdata{dreamer}
+\bibcite{blealtan2024}{1}
+\bibcite{kanoffline2024}{2}
+\bibcite{ha2018world}{3}
+\bibcite{hafner2019dreamer}{4}
+\bibcite{hafner2019planet}{5}
+\bibcite{hafner2021dreamerv2}{6}
+\bibcite{hafner2023dreamerv3}{7}
+\bibcite{kaiser2020atari100k}{8}
+\bibcite{kanppo2024}{9}
+\bibcite{kolmogorov1957superpositions}{10}
+\bibcite{li2024fastkan}{11}
+\bibcite{liu2024kan}{12}
+\bibcite{ukan2024}{13}
+\bibcite{qiu2024relukan}{14}
+\bibcite{kanforgetting2024}{15}
+\bibcite{schwarzer2023bbf}{16}
+\bibcite{kandreamer2025}{17}
+\bibcite{williams1992simple}{18}
+\bibcite{kanvmlp2024}{19}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Per-Game Training Curves}{10}{appendix.A}}
+\newlabel{app:curves}{{A}{10}{Per-Game Training Curves}{appendix.A}{}}

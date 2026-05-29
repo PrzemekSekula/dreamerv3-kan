@@ -19,7 +19,7 @@ TASK_NAME = 'atari100k'
 LOG_FOLDER = f'../data/{TASK_NAME}/'
 IMAGE_FOLDER = f'./tmp/{TASK_NAME}/'
 
-SUBFOLDERS = ['original', 'kan_enc'] # subfolder for different models
+SUBFOLDERS = ['original', 'kan_ac'] # subfolder for different models
 PDF_NAME = os.path.join(LOG_FOLDER, f'{TASK_NAME}_summary.pdf')
 
 
@@ -36,7 +36,7 @@ if False:
 
         files = [
             entry for entry in os.scandir(log_folder)
-            if entry.is_file() and entry.name.endswith('csv') and entry.name != 'summary.csv'
+            if entry.is_file() and entry.name.endswith('csv') and (entry.name not in ['summary.csv', 'stats.csv'])
         ]
 
         for entry in files:
@@ -62,10 +62,8 @@ if False:
 # %%
 # Prepare summary for both kan and original dataframes
 
-
-df_kan = pd.read_csv('../data/dmc/kan_enc/summary.csv')
-df_org = pd.read_csv('../data/dmc/original/summary.csv')
-
+df_org = pd.read_csv(os.path.join(LOG_FOLDER, SUBFOLDERS[0], 'summary.csv'))
+df_kan = pd.read_csv(os.path.join(LOG_FOLDER, SUBFOLDERS[1], 'summary.csv'))
 plot_comparable_results(df_org, df_kan, save_path = IMAGE_FOLDER)
 # %%
 # Generate PDF with charts

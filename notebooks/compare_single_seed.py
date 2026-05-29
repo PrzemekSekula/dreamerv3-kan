@@ -1,3 +1,14 @@
+"""Compare a single seed's final-step results between KAN and original networks.
+
+For one chosen seed, loads the KAN and baseline ("original") per-seed CSVs,
+keeps only the last training step, and joins them per environment to compute the
+absolute and percentage difference in eval_return between the two models.  For
+dm_control runs it additionally annotates each environment with its observation
+state size so differences can be examined as a function of state dimensionality.
+
+Intended to be run as a Jupyter-style cell script (``# %%`` blocks).
+"""
+
 # %% [markdown]
 # # Compare single seed results between Kan and Org netrowks
 
